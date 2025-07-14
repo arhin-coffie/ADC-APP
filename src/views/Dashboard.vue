@@ -1,177 +1,469 @@
 <template>
-  <div class="mx-10 mt-10">
-    <div class="flex justify-end mb-10">
-      <ButtonComponent label="Add Member" @submit="openDialog" />
-    </div>
-
-    <div class="flex gap-3 flex-wrap">
-      <div v-for="(member, index) in members" :key="index">
-        <UserCard :member="member" @remove="removeMember(index)" />
+  <div class="dashboard-container bg-gray-50 min-h-screen p-6">
+    <!-- Dashboard Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">NDC Party Analytics</h1>
+        <p class="text-gray-500">Last updated: {{ formatDate(new Date()) }}</p>
       </div>
-    </div>
-
-    <GDialog v-model="dialogState" max-width="500">
-      <div class="flex items-start justify-between p-4 border-b bg-[#2f855a] rounded-t dark:border-gray-600">
-        <h3 class="H600 N900 text-white">
-          {{ editState ? "Edit party member" : "Add party member" }}
-        </h3>
-        <button type="button" @click="dialogState = false"
-          class="inline-flex items-center ml-auto text-sm text-gray-400 bg-transparent rounded-lg hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white">
-          <img src="../../assets/cancel.svg" alt="close-circle-icon" />
+      <div class="flex space-x-3">
+        <button @click="exportReport" class="export-button">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          Download Report
+        </button>
+        <button @click="printSummary" class="print-button">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+          </svg>
+          Print Summary
         </button>
       </div>
+    </div>
 
-      <form>
-        <div class="px-4 mt-5">
-          <InputField type="text" label="Enter name" :requireTag="true" placeholder="Enter name"
-            :maxlength="50" :showlength="false" v-model="newMember.name" />
-        </div>
-        <div class="px-4 mt-5">
-          <InputField type="number" label="Phone number" :requireTag="true" placeholder="Enter phone number"
-            :maxlength="50" :showlength="false" v-model="newMember.phone" />
-        </div>
-        <div class="px-4 mt-5">
-          <InputField type="number" label="Enter part Id number" :requireTag="true" placeholder="Enter id number"
-            :maxlength="50" :showlength="false" v-model="newMember.idNumber" />
-        </div>
-        <div class="px-4 mt-5">
-          <div>
-            <div class="flex justify-between label-div">
-              <label for="status" class="block mb-2 my-1 pt-0.5 P250 N800 dark:text-grey-300">Select position</label>
-              <span class="requiredSpan text-[#DD5928] text-xs px-1.5 py-1.5mb-1.5 my-2 rounded-lg dark:text-grey-900">Required</span>
-            </div>
-            <select class="w-full bg-gray-50 border border-[#d8dae5] hover:border-[#1de383] text-gray-900 rounded-lg focus:outline-[#2f855a] focus:ring-[#1de383] p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-              v-model="newMember.position">
-              <option disabled selected value="">Select position</option>
-              <option value="Chairman">Chairman</option>
-              <option value="Secretary">Secretary</option>
-              <option value="Treasure">Treasure</option>
-              <option value="Member">Member</option>
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <SummaryCard 
+        title="Total Members" 
+        :value="totalMembers" 
+        icon="users"
+        color="bg-blue-100 text-blue-600"
+      />
+      <SummaryCard 
+        title="Total Regions" 
+        :value="regions.length" 
+        icon="map"
+        color="bg-green-100 text-green-600"
+      />
+      <SummaryCard 
+        title="Total Constituencies" 
+        :value="totalConstituencies" 
+        icon="location-marker"
+        color="bg-purple-100 text-purple-600"
+      />
+      <SummaryCard 
+        title="Total Polling Stations" 
+        :value="totalPollingStations" 
+        icon="flag"
+        color="bg-yellow-100 text-yellow-600"
+      />
+      <SummaryCard 
+        title="Registered Leaders" 
+        :value="totalLeaders" 
+        icon="user-group"
+        color="bg-red-100 text-red-600"
+      />
+      <GenderCard 
+        :maleCount="maleMembers"
+        :femaleCount="femaleMembers"
+      />
+    </div>
 
-            </select>
-            
+    <!-- Filter Controls -->
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Region</label>
+          <select 
+            v-model="selectedRegion" 
+            @change="updateConstituencies"
+            class="filter-select"
+          >
+            <option value="">All Regions</option>
+            <option v-for="region in regions" :key="region.id" :value="region.id">
+              {{ region.name }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Constituency</label>
+          <select 
+            v-model="selectedConstituency" 
+            @change="updatePollingStations"
+            :disabled="!selectedRegion"
+            class="filter-select"
+          >
+            <option value="">All Constituencies</option>
+            <option v-for="constituency in filteredConstituencies" :key="constituency.id" :value="constituency.id">
+              {{ constituency.name }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Polling Station</label>
+          <select 
+            v-model="selectedPollingStation" 
+            :disabled="!selectedConstituency"
+            class="filter-select"
+          >
+            <option value="">All Polling Stations</option>
+            <option v-for="station in filteredPollingStations" :key="station.id" :value="station.id">
+              {{ station.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <!-- Members by Constituency Chart -->
+      <div class="bg-white rounded-xl shadow-sm p-6 lg:col-span-2">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-semibold text-gray-800">Members by Constituency</h2>
+          <div class="flex items-center text-sm text-gray-500">
+            <span class="w-3 h-3 bg-blue-500 rounded-full mr-1"></span>
+            Members
           </div>
         </div>
-         <div class="px-4 mt-5">
-          <div>
-            <div class="flex justify-between label-div">
-              <label for="status" class="block mb-2 my-1 pt-0.5 P250 N800 dark:text-grey-300">Select Polling Station</label>
-              <span class="requiredSpan text-[#DD5928] text-xs px-1.5 py-1.5mb-1.5 my-2 rounded-lg dark:text-grey-900">Required</span>
-            </div>
-            <select class="w-full bg-gray-50 border border-[#d8dae5] hover:border-[#1de383] text-gray-900 rounded-lg focus:outline-[#2f855a] focus:ring-[#1de383] p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-              v-model="newMember.poll_Station">
-              <option disabled selected value="">Select Polling Station</option>
-              <option value="Sailors">Sailors</option>
-              <option value="Ase Park">Ase Park</option>
+        <BarChart 
+          :chartData="membersByConstituencyChartData"
+          :options="barChartOptions"
+        />
+      </div>
 
-            </select>
-            
+      <!-- Gender Distribution Chart -->
+      <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Gender Distribution</h2>
+        <div class="h-64">
+          <PieChart 
+            :chartData="genderDistributionChartData"
+            :options="pieChartOptions"
+          />
+        </div>
+        <div class="flex justify-center space-x-4 mt-4 text-sm">
+          <div class="flex items-center">
+            <span class="w-3 h-3 bg-blue-500 rounded-full mr-1"></span>
+            Male ({{ malePercentage }}%)
+          </div>
+          <div class="flex items-center">
+            <span class="w-3 h-3 bg-pink-500 rounded-full mr-1"></span>
+            Female ({{ femalePercentage }}%)
           </div>
         </div>
-        <div class="px-4 mt-5">
-          <InputField type="text" label="Description" :requireTag="true" placeholder="Enter description"
-            :maxlength="50" :showlength="false" v-model="newMember.description" />
-        </div>
+      </div>
+    </div>
 
-        <div class="flex justify-end w-11/12 ml-5 my-5">
-          <button class="text-[#DD5928] SPC-MR-200 mr-4" @click="dialogState = false">
-            Cancel
-          </button>
-          <button v-if="editState" @click.prevent="" type="button"
-            class="text-white btn-shadow P200 bg-[#2f855a] hover:bg-[#58b787] rounded-lg px-5 py-2 flex">
-            <div v-if="loading" role="status">
-              <img src="../assets/loaderImage.svg" alt="loaderimg" />
-              <span class="sr-only">Loading...</span>
-              &nbsp;
-            </div>
-            Update
-          </button>
-          <button v-else type="button" @click="addMember"
-            class="ml-4 text-white btn-shadow P200 bg-[#2f855a] hover:bg-[#58b787] rounded-lg px-5 py-2 flex">
-            <div v-if="loading" role="status">
-              <svg viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"
-                class="inline w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-[#DD5928]">
-                <path
-                  d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                  fill="currentColor" />
-                <path
-                  d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                  fill="currentFill" />
-              </svg>
-              <span class="sr-only">Loading...</span>
-              &nbsp;
-            </div>
-            Save
-          </button>
+    <!-- Recent Activity Table -->
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h2 class="text-lg font-semibold text-gray-800">Recent Member Registrations</h2>
+        <div class="text-sm text-gray-500">
+          Showing last {{ recentMembers.length }} registrations
         </div>
-      </form>
-    </GDialog>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="table-header">Name</th>
+              <th scope="col" class="table-header">Role</th>
+              <th scope="col" class="table-header">Region</th>
+              <th scope="col" class="table-header">Constituency</th>
+              <th scope="col" class="table-header">Polling Station</th>
+              <th scope="col" class="table-header">Joined Date</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr v-for="member in recentMembers" :key="member.id" class="hover:bg-gray-50">
+              <td class="table-cell">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <span class="text-indigo-600 font-medium">
+                      {{ getInitials(member.name) }}
+                    </span>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">{{ member.name }}</div>
+                    <div class="text-sm text-gray-500">{{ member.phone }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="table-cell">
+                <span class="px-2 py-1 text-xs font-medium rounded-full" 
+                  :class="getRoleClass(member.role)">
+                  {{ member.role }}
+                </span>
+              </td>
+              <td class="table-cell">
+                {{ getRegionName(member.regionId) }}
+              </td>
+              <td class="table-cell">
+                {{ getConstituencyName(member.constituencyId) }}
+              </td>
+              <td class="table-cell">
+                {{ getPollingStationName(member.pollingStationId) || 'N/A' }}
+              </td>
+              <td class="table-cell">
+                {{ formatDate(member.joinedDate) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Coverage Map (Placeholder) -->
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Regional Coverage</h2>
+      <div class="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
+        <div class="text-center">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+          </svg>
+          <p class="mt-2 text-gray-500">Map visualization would appear here</p>
+        </div>
+      </div>
+      <div class="flex justify-center mt-4 space-x-4 text-sm">
+        <div class="flex items-center">
+          <span class="w-3 h-3 bg-green-500 rounded-full mr-1"></span>
+          Strong Presence
+        </div>
+        <div class="flex items-center">
+          <span class="w-3 h-3 bg-yellow-500 rounded-full mr-1"></span>
+          Moderate Presence
+        </div>
+        <div class="flex items-center">
+          <span class="w-3 h-3 bg-red-500 rounded-full mr-1"></span>
+          Weak Presence
+        </div>
+      </div>
+    </div>
+
+     
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import UserCard from "../components/UserCard.vue";
-import ButtonComponent from "../components/ButtonComponent.vue";
-import InputField from "../components/InputField.vue";
-import { GDialog } from 'gitart-vue-dialog';
+import { ref, computed, onMounted } from 'vue'
+import { BarChart, PieChart } from 'vue-chart-3'
+import { Chart, registerables } from 'chart.js'
+import GenderCard from '../components/GenderCardComponent.vue'
+import SummaryCard from '../components/SummeryCardComponent.vue'
+Chart.register(...registerables)
 
-const members = ref([]);
-const dialogState = ref(false);
-const editState = ref(false);
-const loading = ref(false);
 
-const newMember = ref({
-  name: '',
-  phone: '',
-  idNumber: '',
-  position: '',
-  description: '',
-  poll_Station: '',
-});
+// Demo Data
+const regions = ref([
+  { id: 'region_01', name: 'Greater Accra', color: '#3B82F6' },
+  { id: 'region_02', name: 'Ashanti', color: '#10B981' },
+  { id: 'region_03', name: 'Central', color: '#F59E0B' },
+  { id: 'region_04', name: 'Eastern', color: '#8B5CF6' },
+  { id: 'region_05', name: 'Northern', color: '#EC4899' }
+])
 
-onMounted(() => {
-  const savedMembers = localStorage.getItem('partyMembers');
-  if (savedMembers) {
-    members.value = JSON.parse(savedMembers);
+const constituencies = ref([
+  { id: 'const_01', name: 'Accra Central', regionId: 'region_01', memberCount: 1250 },
+  { id: 'const_02', name: 'Kumasi Metro', regionId: 'region_02', memberCount: 1840 },
+  { id: 'const_03', name: 'Cape Coast North', regionId: 'region_03', memberCount: 760 },
+  { id: 'const_04', name: 'Koforidua South', regionId: 'region_04', memberCount: 920 },
+  { id: 'const_05', name: 'Tamale Central', regionId: 'region_05', memberCount: 680 },
+  { id: 'const_06', name: 'Tema West', regionId: 'region_01', memberCount: 1100 }
+])
+
+const pollingStations = ref([
+  { id: 'ps_01', name: 'A.M.E. Zion School', constituencyId: 'const_01', memberCount: 85 },
+  { id: 'ps_02', name: 'Accra High School', constituencyId: 'const_01', memberCount: 120 },
+  { id: 'ps_03', name: 'Kumasi City Hall', constituencyId: 'const_02', memberCount: 210 },
+  { id: 'ps_04', name: 'KNUST Campus', constituencyId: 'const_02', memberCount: 180 },
+  { id: 'ps_05', name: 'Cape Coast Market', constituencyId: 'const_03', memberCount: 95 }
+])
+
+const members = ref([
+  { id: 'm_01', name: 'Kwame Nkrumah', role: 'Chairman', gender: 'male', regionId: 'region_01', constituencyId: 'const_01', pollingStationId: 'ps_01', phone: '0244123456', joinedDate: '2023-01-15' },
+  { id: 'm_02', name: 'Ama Ata Aidoo', role: 'Secretary', gender: 'female', regionId: 'region_02', constituencyId: 'const_02', pollingStationId: 'ps_03', phone: '0244765432', joinedDate: '2023-02-20' },
+  { id: 'm_03', name: 'Kofi Annan', role: 'Treasurer', gender: 'male', regionId: 'region_03', constituencyId: 'const_03', pollingStationId: 'ps_05', phone: '0244987654', joinedDate: '2023-03-05' },
+  { id: 'm_04', name: 'Nana Konadu', role: 'Organizer', gender: 'female', regionId: 'region_04', constituencyId: 'const_04', phone: '0244321567', joinedDate: '2023-04-12' },
+  { id: 'm_05', name: 'Jerry Rawlings', role: 'Patron', gender: 'male', regionId: 'region_05', constituencyId: 'const_05', phone: '0244654321', joinedDate: '2023-05-08' },
+  { id: 'm_06', name: 'John Mahama', role: 'Leader', gender: 'male', regionId: 'region_01', constituencyId: 'const_06', phone: '0244123457', joinedDate: '2023-06-18' },
+  { id: 'm_07', name: 'Joyce Bawa', role: 'Deputy Secretary', gender: 'female', regionId: 'region_02', constituencyId: 'const_02', pollingStationId: 'ps_04', phone: '0244765433', joinedDate: '2023-07-22' },
+  { id: 'm_08', name: 'Samia Nkrumah', role: 'Communications', gender: 'female', regionId: 'region_03', constituencyId: 'const_03', phone: '0244987655', joinedDate: '2023-08-30' }
+])
+
+// Filter Selections
+const selectedRegion = ref('')
+const selectedConstituency = ref('')
+const selectedPollingStation = ref('')
+
+// Computed Properties
+const totalMembers = computed(() => members.value.length)
+const totalConstituencies = computed(() => constituencies.value.length)
+const totalPollingStations = computed(() => pollingStations.value.length)
+const totalLeaders = computed(() => members.value.filter(m => ['Chairman', 'Secretary', 'Treasurer', 'Organizer', 'Patron', 'Leader'].includes(m.role)).length)
+const maleMembers = computed(() => members.value.filter(m => m.gender === 'male').length)
+const femaleMembers = computed(() => members.value.filter(m => m.gender === 'female').length)
+const malePercentage = computed(() => Math.round((maleMembers.value / totalMembers.value) * 100))
+const femalePercentage = computed(() => Math.round((femaleMembers.value / totalMembers.value) * 100))
+
+const filteredConstituencies = computed(() => {
+  if (!selectedRegion.value) return []
+  return constituencies.value.filter(c => c.regionId === selectedRegion.value)
+})
+
+const filteredPollingStations = computed(() => {
+  if (!selectedConstituency.value) return []
+  return pollingStations.value.filter(p => p.constituencyId === selectedConstituency.value)
+})
+
+const recentMembers = computed(() => {
+  return [...members.value]
+    .sort((a, b) => new Date(b.joinedDate) - new Date(a.joinedDate))
+    .slice(0, 5)
+})
+
+const membersByConstituencyChartData = computed(() => {
+  const regionConstituencies = selectedRegion.value 
+    ? constituencies.value.filter(c => c.regionId === selectedRegion.value)
+    : constituencies.value
+
+  return {
+    labels: regionConstituencies.map(c => c.name),
+    datasets: [{
+      label: 'Members',
+      data: regionConstituencies.map(c => c.memberCount),
+      backgroundColor: '#3B82F6',
+      borderRadius: 6
+    }]
   }
-});
+})
 
-const openDialog = () => {
-  dialogState.value = true;
-  resetForm();
-};
+const genderDistributionChartData = computed(() => {
+  return {
+    labels: ['Male', 'Female'],
+    datasets: [{
+      data: [maleMembers.value, femaleMembers.value],
+      backgroundColor: ['#3B82F6', '#EC4899'],
+      borderWidth: 0
+    }]
+  }
+})
 
-const addMember = () => {
-  loading.value = true;
+// Chart Options
+const barChartOptions = ref({
+  responsive: true,
+  plugins: {
+    legend: {
+      display: false
+    },
+    tooltip: {
+      callbacks: {
+        label: (context) => {
+          return `${context.dataset.label}: ${context.raw.toLocaleString()}`
+        }
+      }
+    }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        callback: (value) => {
+          return value.toLocaleString()
+        }
+      }
+    }
+  }
+})
 
-  setTimeout(() => {
-    members.value.unshift({
-      ...newMember.value,
-      id: Date.now()
-    });
+const pieChartOptions = ref({
+  responsive: true,
+  plugins: {
+    legend: {
+      display: false
+    }
+  },
+  cutout: '70%'
+})
 
-    localStorage.setItem('partyMembers', JSON.stringify(members.value));
+// Methods
+const updateConstituencies = () => {
+  selectedConstituency.value = ''
+  selectedPollingStation.value = ''
+}
 
-    resetForm();
-    dialogState.value = false;
-    loading.value = false;
-  }, 1000);
-};
+const updatePollingStations = () => {
+  selectedPollingStation.value = ''
+}
 
-const removeMember = (index) => {
-  members.value.splice(index, 1);
-  localStorage.setItem('partyMembers', JSON.stringify(members.value));
-};
+const formatDate = (dateString) => {
+  const options = { year: 'numeric', month: 'short', day: 'numeric' }
+  return new Date(dateString).toLocaleDateString('en-US', options)
+}
 
-const resetForm = () => {
-  newMember.value = {
-    name: '',
-    phone: '',
-    idNumber: '',
-    position: '',
-    description: '',
-    poll_Station: '',
-  };
-};
+const getInitials = (name) => {
+  return name.split(' ').map(n => n[0]).join('').toUpperCase()
+}
+
+const getRoleClass = (role) => {
+  const roleClasses = {
+    'Chairman': 'bg-blue-100 text-blue-800',
+    'Secretary': 'bg-green-100 text-green-800',
+    'Treasurer': 'bg-purple-100 text-purple-800',
+    'Organizer': 'bg-yellow-100 text-yellow-800',
+    'Patron': 'bg-red-100 text-red-800',
+    'Leader': 'bg-indigo-100 text-indigo-800',
+    'Deputy Secretary': 'bg-teal-100 text-teal-800',
+    'Communications': 'bg-pink-100 text-pink-800'
+  }
+  return roleClasses[role] || 'bg-gray-100 text-gray-800'
+}
+
+const getRegionName = (regionId) => {
+  const region = regions.value.find(r => r.id === regionId)
+  return region ? region.name : 'Unknown'
+}
+
+const getConstituencyName = (constituencyId) => {
+  const constituency = constituencies.value.find(c => c.id === constituencyId)
+  return constituency ? constituency.name : 'Unknown'
+}
+
+const getPollingStationName = (pollingStationId) => {
+  if (!pollingStationId) return null
+  const station = pollingStations.value.find(p => p.id === pollingStationId)
+  return station ? station.name : 'Unknown'
+}
+
+const exportReport = () => {
+  alert('Export functionality would be implemented here')
+}
+
+const printSummary = () => {
+  alert('Print functionality would be implemented here')
+}
+
+// Initialize with first region selected
+onMounted(() => {
+  if (regions.value.length > 0) {
+    selectedRegion.value = regions.value[0].id
+  }
+})
 </script>
+
+<style scoped>
+.dashboard-container {
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+.filter-select {
+  @apply block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500;
+}
+
+.export-button {
+  @apply px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 flex items-center;
+}
+
+.print-button {
+  @apply px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 flex items-center;
+}
+
+.table-header {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+.table-cell {
+  @apply px-6 py-4 whitespace-nowrap text-sm;
+}
+</style>

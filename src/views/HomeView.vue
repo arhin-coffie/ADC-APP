@@ -1,6 +1,6 @@
 <template>
   <div class="home z-999 bg-white">
-    <div class="toogle-button  mb-5 pt-4">
+    <div class="toogle-button  mb-4 pt-4">
       <div class=" nav-f ml-4">
         <button
           @click="pullToggle('sailers')"
@@ -22,37 +22,51 @@
         <p class="block N800 P200 ml-5 mr-5 mt-2 text-lowercase fs-6 px-1">
           Ase Park <span class="arrow-color">></span>
         </p>
-        <button
+        <button  @click="pullToggle('nkansa_one')"
           class="labelButton btn btn-outline-success text-green btn-shadow text-center hover:bg-[#B5461D] bg-[#8F95B2] focus:outline-none focus:ring-2 focus:bg-[#DD5928] active:bg-[#DD5928]"
+          :class="nkansaToggle ? 'active-toogle-button' : 'inactive-toogle-button'"
         >
           3
         </button>
+           <p class="block N800 P200 ml-5 mr-5 mt-2 text-lowercase fs-6 px-1">
+          Nkansa One <span class="arrow-color">></span>
+        </p>
       </div>
     </div>
   </div>
   <SailorsComponent v-if=" sailersToggle" />
   <AseParkComponent v-if="aseparkToggle" />
+  <NkansaOneComponent v-if="nkansaToggle"/>
 </template>
 
 <script setup>
 import AseParkComponent from "../views/pullstations/AsePark.vue";
 import SailorsComponent from "../views/pullstations/Sailors.vue";
+import NkansaOneComponent from "../views/pullstations/NkansaOne.vue";
 
 import { ref } from "vue";
 const sailersToggle = ref(true);
 const aseparkToggle = ref(false);
+const  nkansaToggle= ref(false);
 
 const pullToggle = (view) => {
   if (view === "sailers") {
     sailersToggle.value = true;
     aseparkToggle.value = false;
+    nkansaToggle.value = false;
+
   } else if (view === "ase_Park") {
     sailersToggle.value = false;
     aseparkToggle.value = true;
-  } else {
-    // this.sailersToggle = false;
-    // this.aseparkToggle = true;
-  }
+        nkansaToggle.value = false;
+
+    
+  } 
+   else if (view === "nkansa_one") {
+    sailersToggle.value = false;
+    aseparkToggle.value = false;
+   nkansaToggle.value = true;
+  } 
 };
 </script>
 <style scoped>
@@ -73,7 +87,7 @@ const pullToggle = (view) => {
 .home{
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
   position: fixed;
-    top: 0;
+    top: 0px;
     width: 100%;
     z-index: 999;
 }

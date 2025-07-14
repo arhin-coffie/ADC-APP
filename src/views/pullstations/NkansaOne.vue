@@ -1,27 +1,8 @@
 <template>
   <div class="mx-40 bg-[#e3ece4] mt-24">
-        <!-- Notification Toast -->
-<div v-if="showSuccess" class="fixed top-50 right-20 z-50">
-  <div class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center">
-    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-    </svg>
-    {{ successMessage }}
-  </div>
-</div>
-
-<!-- Error Notification Toast -->
-<div v-if="showError" class="fixed top-50 right-20  z-50">
-  <div class="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center">
-    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-    </svg>
-    {{ errorMessage }}
-  </div>
-</div>
-         <div class="thank-you-banner ">  <!-- Changed to mb-4 -->
+        <div class="thank-you-banner">  <!-- Changed to mb-4 -->
       <div class="thank-you-text">
-        Ase Park Polling Station 
+        Nkansa One Polling Station 
       </div>
       <div class="thank-you-decoration">
         <svg class="w-24 h-24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -30,63 +11,20 @@
         </svg>
       </div>
     </div>
-       <div class="top_section container mt-0">  <!-- Changed to mt-0 -->
+       <div class="top_section  mt-0">  <!-- Changed to mt-0 -->
       <HeaderComponent 
         :isLink="false" 
         @btncall="openAddDialog"
         text="Add members" 
-        type="Ase Park"
+        type="Sailors"
         :count="members?.length" 
       />
     </div>
-<!-- Search Section -->
-    <div class="mx-auto">
-      <div class=" shadow-sm p-4 mb-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label for="nameSearch" class="block text-sm font-medium text-gray-700 mb-1">Search by Name</label>
-            <div class="relative">
-              <input
-                type="text"
-                id="nameSearch"
-                v-model="nameSearch"
-                placeholder="Enter name..."
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
-              <button 
-                v-if="nameSearch"
-                @click="nameSearch = ''"
-                class="absolute right-3 top-2 text-gray-400 hover:text-gray-600"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          <div>
-            <label for="positionSearch" class="block text-sm font-medium text-gray-700 mb-1">Filter by Position</label>
-            <select
-              id="positionSearch"
-              v-model="positionSearch"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            >
-              <option value="">All Positions</option>
-              <option v-for="position in uniquePositions" :key="position" :value="position">
-                {{ position }}
-              </option>
-            </select>
-          </div>
-        </div>
-        <div class=" text-sm text-gray-500" v-if="members.length > 0">
-          Showing {{ filteredMembers.length }} of {{ members.length }} members
-        </div>
-      </div>
-    </div>
+
     <div class="container mx-auto px-4 mt-8">
       <div class="bg-white rounded-xl shadow-sm overflow-visible">
-        <table aria-label="user table" class="w-full rounded-xl">
-          <thead class="bg-[#2f855a] text-white rounded-xl">
+        <table aria-label="user table" class="w-full">
+          <thead class="bg-[#2f855a] text-white">
             <tr>
               <th class="px-6 py-4 text-left font-medium uppercase tracking-wider">Party ID</th>
               <th class="px-6 py-4 text-left font-medium uppercase tracking-wider">Name</th>
@@ -202,7 +140,7 @@
           <InputField 
             type="text" 
             id="name" 
-            label="" 
+            label="Enter name" 
             :requireTag="true" 
             placeholder="Enter name"
             :maxlength="50" 
@@ -344,7 +282,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import HeaderComponent from '../../components/HeaderComponent.vue';
 import InputField from '../../components/InputField.vue';
 import { GDialog } from 'gitart-vue-dialog';
@@ -360,10 +298,7 @@ const loading = ref(false);
 const showSuccess = ref(false);
 const successMessage = ref('');
 const memberToDelete = ref(null);
-const showError = ref(false);
-const errorMessage = ref('');
-const nameSearch = ref('');
-const positionSearch = ref('');
+
 // Current member being edited/added
 const currentMember = ref({
   id: null,
@@ -372,42 +307,17 @@ const currentMember = ref({
   idNumber: '',
   position: '',
   description: '',
-  poll_Station: 'Ase Park'
-});
-// Computed properties
-const uniquePositions = computed(() => {
-  const positions = new Set();
-  members.value.forEach(member => {
-    if (member.position) {
-      positions.add(member.position);
-    }
-  });
-  return Array.from(positions).sort();
-});
-
-const filteredMembers = computed(() => {
-  if (!members.value || members.value.length === 0) return [];
-  
-  return members.value.filter(member => {
-    const matchesName = member.name.toLowerCase().includes(nameSearch.value.toLowerCase());
-    const matchesPosition = positionSearch.value === '' || member.position === positionSearch.value;
-    return matchesName && matchesPosition;
-  });
+  poll_Station: 'Nkansa One'
 });
 
 // Initialize with sample data or from localStorage
-onMounted(async () => {
-  try {
-    const savedMembers = localStorage.getItem('partyMembers');
-    members.value = savedMembers ? JSON.parse(savedMembers).filter(m => m.poll_Station === 'Ase Park') : [];
-    
-    const savedPositions = localStorage.getItem('positions');
-    allPositions.value = savedPositions ? JSON.parse(savedPositions) : [];
-  } catch (error) {
-    console.error('Error loading data:', error);
-    showNotification('Failed to load members data', false);
-  } finally {
-    isLoading.value = false;
+onMounted(() => {
+  const savedMembers = localStorage.getItem('partyMembers');
+  if (savedMembers) {
+    members.value = JSON.parse(savedMembers).filter(m => m.poll_Station === 'Nkansa One');
+  } else {
+    // Sample data for demonstration
+    saveToLocalStorage();
   }
   
   // Close dropdown when clicking outside
@@ -416,8 +326,11 @@ onMounted(async () => {
       activeDropdown.value = null;
     }
   });
+    const savedPositions = localStorage.getItem('positions');
+  if (savedPositions) {
+    allPositions.value = JSON.parse(savedPositions);
+  }
 });
-
 
 // Utility functions
 const formatPhoneNumber = (phone) => {
@@ -441,26 +354,24 @@ const positionClass = (position) => {
 const saveToLocalStorage = () => {
   // Get all existing members from localStorage
   const existingMembers = JSON.parse(localStorage.getItem('partyMembers')) || [];
+  
   // Filter out members from the same poll station
-  const otherMembers = existingMembers.filter(m => m.poll_Station !== 'Ase Park');
+  const otherMembers = existingMembers.filter(m => m.poll_Station !== 'Nkansa One');
+  
   // Combine with current members
   const allMembers = [...otherMembers, ...members.value];
+  
   // Save back to localStorage
   localStorage.setItem('partyMembers', JSON.stringify(allMembers));
 };
 
 // ... (rest of the script remains the same)
-const showNotification = (message, isSuccess = true) => {
-  if (isSuccess) {
-    successMessage.value = message;
-    showSuccess.value = true;
-    setTimeout(() => showSuccess.value = false, 3000);
-  } else {
-    errorMessage.value = message;
-    showError.value = true;
-    setTimeout(() => showError.value = false, 3000);
-  }
+const showNotification = (message) => {
+  successMessage.value = message;
+  showSuccess.value = true;
+  setTimeout(() => showSuccess.value = false, 3000);
 };
+
 // Dialog functions
 const openAddDialog = () => {
   currentMember.value = {
@@ -470,7 +381,7 @@ const openAddDialog = () => {
     idNumber: '',
     position: '',
     description: '',
-    poll_Station: 'Ase Park'
+    poll_Station: 'Nkansa One'
   };
   editMode.value = false;
   dialogState.value = true;
@@ -491,53 +402,34 @@ const editMember = (member) => {
   dialogState.value = true;
   activeDropdown.value = null;
 };
+
 const addMember = () => {
   loading.value = true;
-  try {
-    setTimeout(() => {
-      if (!currentMember.value.name || !currentMember.value.phone || !currentMember.value.position) {
-        throw new Error('Please fill all required fields');
-      }
-      
-      const newMember = {
-        ...currentMember.value,
-        id: Date.now() // Generate unique ID
-      };
-      members.value.unshift(newMember);
-      saveToLocalStorage();
-      loading.value = false;
-      dialogState.value = false;
-      showNotification('Member added successfully!');
-    }, 1000);
-  } catch (error) {
+  setTimeout(() => {
+    const newMember = {
+      ...currentMember.value,
+      id: Date.now() // Generate unique ID
+    };
+    members.value.unshift(newMember);
+    saveToLocalStorage();
     loading.value = false;
-    showNotification(error.message, false);
-  }
+    dialogState.value = false;
+    showNotification('Member added successfully!');
+  }, 1000);
 };
 
 const updateMember = () => {
   loading.value = true;
-  try {
-    setTimeout(() => {
-      if (!currentMember.value.name || !currentMember.value.phone || !currentMember.value.position) {
-        throw new Error('Please fill all required fields');
-      }
-      
-      const index = members.value.findIndex(m => m.id === currentMember.value.id);
-      if (index !== -1) {
-        members.value[index] = { ...currentMember.value };
-        saveToLocalStorage();
-        showNotification('Member updated successfully!');
-      } else {
-        throw new Error('Member not found');
-      }
-      loading.value = false;
-      dialogState.value = false;
-    }, 1000);
-  } catch (error) {
+  setTimeout(() => {
+    const index = members.value.findIndex(m => m.id === currentMember.value.id);
+    if (index !== -1) {
+      members.value[index] = { ...currentMember.value };
+      saveToLocalStorage();
+      showNotification('Member updated successfully!');
+    }
     loading.value = false;
-    showNotification(error.message, false);
-  }
+    dialogState.value = false;
+  }, 1000);
 };
 
 const confirmDelete = (member) => {
@@ -547,19 +439,11 @@ const confirmDelete = (member) => {
 };
 
 const deleteMember = () => {
-  try {
-    if (!memberToDelete.value) {
-      throw new Error('No member selected for deletion');
-    }
-    
-    members.value = members.value.filter(m => m.id !== memberToDelete.value.id);
-    saveToLocalStorage();
-    deleteDialogState.value = false;
-    showNotification('Member deleted successfully!');
-    memberToDelete.value = null;
-  } catch (error) {
-    showNotification(error.message, false);
-  }
+  members.value = members.value.filter(m => m.id !== memberToDelete.value.id);
+  saveToLocalStorage();
+  deleteDialogState.value = false;
+  showNotification('Member deleted successfully!');
+  memberToDelete.value = null;
 };
 </script>
 
@@ -628,6 +512,7 @@ tbody tr:hover {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   position: relative;
+  z-index: 2;
     padding: 0.5rem 0; /* Added padding */
 
 }
@@ -635,6 +520,7 @@ tbody tr:hover {
 
 .thank-you-decoration {
   @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-20;
+  z-index: 1;
 }
 
 .thank-you-decoration svg {

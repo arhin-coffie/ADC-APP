@@ -1,161 +1,101 @@
-<!-- eslint-disable no-unused-vars -->
-<script setup>
-// eslint-disable-next-line no-unused-vars
-import SidebarLink from "./SidebarLink.vue";
-import { collapsed, toggleSidebar, sidebarWidth } from "./state";
-import SettingsComponent from "../SettingsComponent.vue";
-import {ref} from 'vue';
-
-const selectedComponent = ref(false)
-const handleClick = () => {
-  selectedComponent.value =!selectedComponent.value;
-}
-</script>
-
 <template>
-  <div class="sidebar  absolute flex" :style="{ width: sidebarWidth }">
-    <h1>
-      <span v-if="collapsed">
-        <div>V</div>
-        <div>S</div>
-      </span>
-      <div class="profile-image">
-        <img
-          src="https://cdn.modernghana.com/images/content/c28jbn4ayt_2ndc_1.png"
-          alt="profile-image"
-        />
+  <div class="flex min-h-screen z-40 pl-64 mt-16">
+    <!-- Sidebar Navigation -->
+    <aside class="fixed top-0 left-0 h-screen w-64 bg-black text-white p-4 z-40">
+   <div class="absolute top-4 right-4 w-16 h-16 md:w-20 md:h-20">
+       <div class="flex h-12 mr-12 rounded-md overflow-hidden shadow-md transition-transform duration-300 hover:scale-105">
+          <div class="w-6 bg-[#D21011]"></div>
+          <div class="w-6 bg-white border-l border-r border-gray-200"></div>
+          <div class="w-6 bg-[#006B3D]"></div>
+          <div class="w-6 bg-black"></div>
+        </div>
       </div>
-    </h1>
-    <div class="mt-20 ">
-    <SidebarLink to="/" icon="fas fa-home">Poll Stations</SidebarLink>
-    <SidebarLink to="/dashboard" icon="fas fa-columns">Directory</SidebarLink>
-    <SidebarLink to="/analytics" icon="fas fa-chart-bar">Analytics</SidebarLink>
-    <SidebarLink to="/friends" icon="fas fa-users">Friends</SidebarLink>
-    <SidebarLink to="/image" icon="fas fa-image">Images</SidebarLink>
-    <li @click="handleClick">Settings</li>
+      <nav class="space-y-2">
+        <RouterLink
+          to="/#"
+          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
+          :class="$route.path === '/login' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+        >
+          <span>📊</span> Log IN
+        </RouterLink>
+        <RouterLink
+          to="/dashboard"
+          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
+          :class="$route.path === '/dashboard' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+        >
+          <span>📊</span> Dashboard
+        </RouterLink>
 
-  </div>
-  <ul>
+        <RouterLink
+          to="/memberss"
+          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
+          :class="$route.path === '/memberss' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+        >
+          <span>👥</span> Members
+        </RouterLink>
 
-<!-- <li @click="handleClick('settings')">home</li> -->
+        <RouterLink
+          to="/leadership"
+          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
+          :class="$route.path === '/leadership' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+        >
+          <span>👥</span> Leadership
+        </RouterLink>
+          <RouterLink
+          to="/region"
+          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
+          :class="$route.path === '/region' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+        >
+          <span>📍</span> Region
+        </RouterLink>  
+        <RouterLink
+          to="/constituency"
+          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
+          :class="$route.path === '/constituency' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+        >
+          <span>📍</span> Constituencys
+        </RouterLink>
 
-</ul>
-    <span
-      class="collapse-icon"
-      :class="{ 'rotate-180': collapsed }"
-      @click="toggleSidebar"
-    >
-      <i class="fas fa-angle-double-left" />
-    </span>
-   
-    <SettingsComponent v-if="selectedComponent"/>
+        <RouterLink
+          to="/station"
+          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
+          :class="$route.path === '/station' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+        >
+          <span>📍</span> Polling Stations
+        </RouterLink>
 
+        <RouterLink
+          to="/collation"
+          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
+          :class="$route.path === '/collation' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+        >
+          <span>📄</span> Collation Center
+        </RouterLink>
+         <RouterLink
+          to="/meeting"
+          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
+          :class="$route.path === '/meeting' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+        >
+          <span>📄</span> Attendance
+        </RouterLink>
+            <RouterLink
+          to="/system-settings"
+          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
+          :class="$route.path === '/system-settings' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+        >
+          <span>📄</span> Settings
+        </RouterLink>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+     <main class="flex-1 p-8">
+      <router-view />
+    </main>
   </div>
 </template>
-<style>
-:root {
-  --sidebar-bg-color: #2f855a;
-  --sidebar-item-hover: #38a169;
-  --sidebar-item-active: #276749;
-}
-.sidebar {
-  color: white;
-  background-color: var(--sidebar-bg-color);
 
-  float: left;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  padding: 0.5em;
-
-  transition: 0.3s ease;
-
-  display: flex;
-  flex-direction: column;
-}
-
-
-.sidebar h1 {
-  height: 2.5em;
-}
-
-.collapse-icon {
-  position: absolute;
-  bottom: 0;
-  padding: 0.75em;
-
-  color: rgba(255, 255, 255, 0.7);
-
-  transition: 0.2s linear;
-}
-
-.rotate-180 {
-  transform: rotate(180deg);
-  transition: 0.2s linear;
-}
-.profile-image {
-  width: 100px;
-  height: 100px;
-  overflow: hidden;
-}
-
-.profile-image img {
-  width: 80%;
-  height: 80%;
-  object-fit: cover;
-  border-radius: 30%;
-}
-</style>
-
-<style scoped>
-/* .sidebar {
-  color: white;
-  background-color: var(--sidebar-bg-color);
-
-  float: left;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  padding: 0.5em;
-
-  transition: 0.3s ease;
-
-  display: flex;
-  flex-direction: column;
-} */
-
-.sidebar h1 {
-  height: 2.5em;
-}
-
-.collapse-icon {
-  position: absolute;
-  bottom: 0;
-  padding: 0.75em;
-
-  color: rgba(255, 255, 255, 0.7);
-
-  transition: 0.2s linear;
-}
-
-.rotate-180 {
-  transform: rotate(180deg);
-  transition: 0.2s linear;
-}
-.profile-image {
-  width: 100px;
-  height: 100px;
-  overflow: hidden;
-}
-
-.profile-image img {
-  width: 80%;
-  height: 80%;
-  object-fit: cover;
-  border-radius: 30%;
-}
-</style>
+<script setup>
+import { useRoute } from 'vue-router'
+const $route = useRoute()
+</script>

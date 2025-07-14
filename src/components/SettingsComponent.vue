@@ -4,13 +4,16 @@
       <h6 class="settings-title">Settings</h6>
       <div class="settings-links">
         <SidebarLink to="/PullStation" icon="fas fa-columns" class="settings-link">
-          <span class="link-text">Pull Station</span>
+          <span class="link-text"> Create Polling Stations</span>
         </SidebarLink>
         <SidebarLink to="/Position" icon="fas fa-columns" class="settings-link">
-          <span class="link-text">Position</span>
+          <span class="link-text">Create Positions</span>
+        </SidebarLink>
+         <SidebarLink to="/meeting" icon="fas fa-columns" class="settings-link">
+          <span class="link-text">Create Meeting</span>
         </SidebarLink>
         <SidebarLink to="/Id-prefix" icon="fas fa-columns" class="settings-link">
-          <span class="link-text">ID Prefix</span>
+          <span class="link-text">Create ID Prefix</span>
         </SidebarLink>
       </div>
     </div>
