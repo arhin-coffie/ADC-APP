@@ -35,12 +35,12 @@ const chartData = computed(() => {
       data: [voteData.ndc, voteData.npp, voteData.others],
       backgroundColor: [
         '#008000', // Green for NDC
-        '#FF0000', // Red for NPP
+        'blue', // Red for NPP
         '#808080'  // Gray for Others
       ],
       borderColor: [
         '#FFFFFF',
-        '#FFFFFF',
+        'blue',
         '#FFFFFF'
       ],
       borderWidth: 1

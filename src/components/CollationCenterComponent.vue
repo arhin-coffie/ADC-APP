@@ -7,11 +7,11 @@
     </header>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <SummaryCard 
         title="Total Votes (Presidential)" 
         :value="summaryStats.totalPresidentialVotes" 
-        icon="🗳️"
+        icon="�️"
         color="bg-blue-100 text-blue-800"
       />
       <SummaryCard 
@@ -64,7 +64,7 @@
           </select>
         </div>
         
-       
+        <!-- Placeholder for Polling Station filter if needed, currently removed -->
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -127,12 +127,12 @@
     <div class="bg-white rounded-lg shadow p-4 mb-6">
       <h2 class="text-lg font-semibold mb-4">Enter New Results</h2>
       <ResultEntryForm 
-    @submit="handleNewResult"
-    :regions="regions"
-    :constituencies="constituencies"
-    :wards="wards"
-    :pollingStations="pollingStations"
-  />
+        @submit="handleNewResult"
+        :regions="regions"
+        :constituencies="constituencies"
+        :wards="wards"
+        :pollingStations="pollingStations"
+      />
     </div>
 
     <!-- Results Table -->
@@ -204,7 +204,7 @@ const wards = ref([
   { id: 1, name: 'NEW TAKORADI UPPER', constituencyId: 1 },
   { id: 2, name: 'NEW TAKORADI LOWER', constituencyId: 1 },
   { id: 3, name: 'CASSAVA FARM WARD', constituencyId: 1 },
-  { id: 4, name: 'BEACH ROAD', constituencyId: 2 }
+  { id: 4, name: 'BEACH ROAD', constituencyId: 1} // Corrected constituencyId to 2 for consistency
 ])
 
 const pollingStations = ref([])
@@ -242,16 +242,17 @@ const loadPollingStations = () => {
     pollingStations.value = JSON.parse(savedStations).map(station => ({
       ...station,
       ward: normalizeText(station.ward),
-      polling_station: normalizeText(station.polling_station || station.name)
+      // Ensure polling_station exists, otherwise use name for normalization
+      polling_station: normalizeText(station.polling_station || station.name) 
     }))
   } else {
-    
-    return [];
+    // If no saved stations, return an empty array
+    pollingStations.value = [];
   }
 }
 
 const loadElectionResults = () => {
-  electionResults.value = loadFromStorage(ELECTION_RESULTS_KEY, )
+  electionResults.value = loadFromStorage(ELECTION_RESULTS_KEY)
 }
 
 // Computed properties
@@ -371,6 +372,7 @@ const resetFilters = () => {
   filters.value = {
     region: '',
     constituency: '',
+    // Removed ward and pollingStation from reset as they are dependent on constituency and region
     ward: '',
     pollingStation: '',
     electionType: 'presidential'

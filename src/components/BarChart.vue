@@ -39,8 +39,8 @@ const chartData = computed(() => {
         data: props.data.map(item => props.electionType === 'presidential' 
           ? item.presidential.npp 
           : item.parliamentary.npp),
-        backgroundColor: '#FF0000', // Red for NPP
-        borderColor: '#FF0000',
+        backgroundColor: 'blue', // Red for NPP
+        borderColor: 'blue',
         borderWidth: 1
       },
       {

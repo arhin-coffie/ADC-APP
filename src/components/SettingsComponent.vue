@@ -18,6 +18,11 @@
       </div>
     </div>
   </transition>
+
+  <!-- <dev>
+    <input type="text" v-model="person.name" ></input>
+    <button @click="addName()">add name</button>
+  </dev> -->
 </template>
 
 <script setup>

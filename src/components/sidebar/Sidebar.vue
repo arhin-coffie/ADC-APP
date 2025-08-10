@@ -1,101 +1,110 @@
 <template>
   <div class="flex min-h-screen z-40 pl-64 mt-16">
-    <!-- Sidebar Navigation -->
-    <aside class="fixed top-0 left-0 h-screen w-64 bg-black text-white p-4 z-40">
-   <div class="absolute top-4 right-4 w-16 h-16 md:w-20 md:h-20">
-       <div class="flex h-12 mr-12 rounded-md overflow-hidden shadow-md transition-transform duration-300 hover:scale-105">
-          <div class="w-6 bg-[#D21011]"></div>
-          <div class="w-6 bg-white border-l border-r border-gray-200"></div>
-          <div class="w-6 bg-[#006B3D]"></div>
-          <div class="w-6 bg-black"></div>
-        </div>
+    <aside class="fixed top-0 left-0 h-screen w-64 bg-gray-900 text-white p-4 shadow-lg z-40 flex flex-col">
+      <div class="flex justify-center items-center mb-8 mt-4">
+        <img
+          src="https://theheraldghana.com/wp-content/uploads/2022/03/NDC.jpg"
+          alt="NDC Flag"
+          class="w-24 h-24 object-contain rounded-full border-2 border-red-600 shadow-md"
+        />
       </div>
-      <nav class="space-y-2">
-        <RouterLink
-          to="/#"
-          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
-          :class="$route.path === '/login' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
-        >
-          <span>📊</span> Log IN
-        </RouterLink>
+
+      <nav class="flex-1 space-y-3">
         <RouterLink
           to="/dashboard"
-          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
-          :class="$route.path === '/dashboard' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition-colors duration-200"
+          :class="$route.path === '/dashboard' ? 'bg-red-600 text-white font-semibold shadow-md' : 'hover:bg-gray-700'"
         >
-          <span>📊</span> Dashboard
+          <i class="fas fa-tachometer-alt text-lg"></i>
+          <span>Dashboard</span>
         </RouterLink>
 
         <RouterLink
           to="/memberss"
-          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
-          :class="$route.path === '/memberss' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition-colors duration-200"
+          :class="$route.path === '/memberss' ? 'bg-red-600 text-white font-semibold shadow-md' : 'hover:bg-gray-700'"
         >
-          <span>👥</span> Members
+          <i class="fas fa-users text-lg"></i>
+          <span>Members</span>
         </RouterLink>
 
         <RouterLink
           to="/leadership"
-          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
-          :class="$route.path === '/leadership' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition-colors duration-200"
+          :class="$route.path === '/leadership' ? 'bg-red-600 text-white font-semibold shadow-md' : 'hover:bg-gray-700'"
         >
-          <span>👥</span> Leadership
+          <i class="fas fa-user-tie text-lg"></i>
+          <span>Leadership</span>
         </RouterLink>
-          <RouterLink
+
+        <RouterLink
           to="/region"
-          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
-          :class="$route.path === '/region' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition-colors duration-200"
+          :class="$route.path === '/region' ? 'bg-red-600 text-white font-semibold shadow-md' : 'hover:bg-gray-700'"
         >
-          <span>📍</span> Region
-        </RouterLink>  
+          <i class="fas fa-globe-africa text-lg"></i>
+          <span>Region</span>
+        </RouterLink>
+
         <RouterLink
           to="/constituency"
-          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
-          :class="$route.path === '/constituency' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition-colors duration-200"
+          :class="$route.path === '/constituency' ? 'bg-red-600 text-white font-semibold shadow-md' : 'hover:bg-gray-700'"
         >
-          <span>📍</span> Constituencys
+          <i class="fas fa-map-marked-alt text-lg"></i>
+          <span>Constituencies</span>
         </RouterLink>
 
         <RouterLink
           to="/station"
-          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
-          :class="$route.path === '/station' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition-colors duration-200"
+          :class="$route.path === '/station' ? 'bg-red-600 text-white font-semibold shadow-md' : 'hover:bg-gray-700'"
         >
-          <span>📍</span> Polling Stations
+          <i class="fas fa-vote-yea text-lg"></i>
+          <span>Polling Stations</span>
         </RouterLink>
 
         <RouterLink
           to="/collation"
-          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
-          :class="$route.path === '/collation' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition-colors duration-200"
+          :class="$route.path === '/collation' ? 'bg-red-600 text-white font-semibold shadow-md' : 'hover:bg-gray-700'"
         >
-          <span>📄</span> Collation Center
+          <i class="fas fa-file-alt text-lg"></i>
+          <span>Collation Center</span>
         </RouterLink>
-         <RouterLink
+
+        <RouterLink
           to="/meeting"
-          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
-          :class="$route.path === '/meeting' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition-colors duration-200"
+          :class="$route.path === '/meeting' ? 'bg-red-600 text-white font-semibold shadow-md' : 'hover:bg-gray-700'"
         >
-          <span>📄</span> Attendance
+          <i class="fas fa-handshake text-lg"></i>
+          <span>Attendance/Aid</span>
         </RouterLink>
-            <RouterLink
+
+        <RouterLink
           to="/system-settings"
-          class="flex items-center gap-2 py-2 px-4 rounded hover:bg-red-600"
-          :class="$route.path === '/system-settings' ? 'bg-white text-black font-bold border-l-4 border-red-600' : ''"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition-colors duration-200"
+          :class="$route.path === '/system-settings' ? 'bg-red-600 text-white font-semibold shadow-md' : 'hover:bg-gray-700'"
         >
-          <span>📄</span> Settings
+          <i class="fas fa-cogs text-lg"></i>
+          <span>Settings</span>
         </RouterLink>
       </nav>
     </aside>
 
-    <!-- Main Content -->
-     <main class="flex-1 p-8">
+    <main class="flex-1 p-8">
       <router-view />
     </main>
   </div>
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router'
-const $route = useRoute()
+import { useRoute } from 'vue-router';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+const $route = useRoute();
 </script>
+
+<style scoped>
+/* Optional: Add custom styles here if needed */
+</style>

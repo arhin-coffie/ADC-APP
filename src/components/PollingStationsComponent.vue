@@ -1,6 +1,5 @@
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-4">
-    <!-- Header Section -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
       <div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Polling Stations Management</h1>
@@ -8,22 +7,42 @@
           Manage the structure and members of polling stations
         </p>
       </div>
-      
-      <div class="flex gap-3">
-        <select 
+
+      <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+        <div class="relative flex-grow">
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="Search by station name..."
+            class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-800 dark:text-white"
+          />
+          <MagnifyingGlassIcon class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+        </div>
+
+        <select
           v-model="selectedConstituency"
-          class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+          class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:text-white"
         >
           <option value="">All Constituencies</option>
-          <option 
-            v-for="constituency in constituencies" 
-            :key="constituency.id" 
+          <option
+            v-for="constituency in constituencies"
+            :key="constituency.id"
             :value="constituency.id"
           >
             {{ constituency.name }}
           </option>
         </select>
-        
+
+        <select
+          v-model="selectedWard"
+          class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:text-white"
+        >
+          <option value="">All Wards</option>
+          <option v-for="ward in uniqueWards" :key="ward" :value="ward">
+            {{ ward }}
+          </option>
+        </select>
+
         <button
           @click="openStationModal"
           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
@@ -34,7 +53,6 @@
       </div>
     </div>
 
-    <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
@@ -55,7 +73,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
           <div class="flex items-center">
@@ -75,7 +93,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
           <div class="flex items-center">
@@ -95,7 +113,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
           <div class="flex items-center">
@@ -117,7 +135,6 @@
       </div>
     </div>
 
-    <!-- Stations Table -->
     <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -128,9 +145,6 @@
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Constituency
-              </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Members
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Ward
@@ -160,61 +174,47 @@
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm text-gray-900 dark:text-white">{{ getConstituencyName(station.constituencyId) }}</div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <div class="w-16 mr-3">
-                    <div class="h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
-                      <div 
-                        class="h-full bg-green-500" 
-                        :style="{ width: `${(station.memberCount / stats.maxMembersPerStation) * 100}%` }"
-                      ></div>
-                    </div>
-                  </div>
-                  <div class="text-sm font-medium text-gray-900 dark:text-white">
-                    {{ members.length }}
-                  </div>
-                </div>
-              </td>
+              
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                 {{ station.ward }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                              
-              
-                 <router-link :to="{ name: 'station-members', params: { name: station.name} }"
+                <router-link :to="{ name: 'station-members', params: { name: station.name} }"
                   class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 mr-4"
                 >
                   View Members
-              </router-link>
-                <button 
-                  @click="editStation(station)" 
+                </router-link>
+                <button
+                  @click="editStation(station)"
                   class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-4"
                 >
                   Edit
                 </button>
-                <button 
-                  @click="confirmDelete(station.id)" 
+                <button
+                  @click="confirmDelete(station.id)"
                   class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                 >
                   Delete
                 </button>
               </td>
             </tr>
+            <tr v-if="paginatedStations.length === 0">
+              <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No polling stations found.</td>
+            </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Beautiful Pagination -->
       <div class="bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6">
         <div class="flex-1 flex justify-between sm:hidden">
-          <button 
+          <button
             @click="currentPage = Math.max(1, currentPage - 1)"
             :disabled="currentPage === 1"
             class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
           >
             Previous
           </button>
-          <button 
+          <button
             @click="currentPage = Math.min(totalPages, currentPage + 1)"
             :disabled="currentPage === totalPages"
             class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
@@ -225,14 +225,14 @@
         <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
             <p class="text-sm text-gray-700 dark:text-gray-300">
-              Showing <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> to 
-              <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, filteredStations.length) }}</span> of 
+              Showing <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> to
+              <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, filteredStations.length) }}</span> of
               <span class="font-medium">{{ filteredStations.length }}</span> results
             </p>
           </div>
           <div>
             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-              <button 
+              <button
                 @click="currentPage = Math.max(1, currentPage - 1)"
                 :disabled="currentPage === 1"
                 class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -260,7 +260,7 @@
                   {{ page }}
                 </button>
               </template>
-              <button 
+              <button
                 @click="currentPage = Math.min(totalPages, currentPage + 1)"
                 :disabled="currentPage === totalPages"
                 class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -274,7 +274,6 @@
       </div>
     </div>
 
-    <!-- Station Modal -->
     <GDialog v-model="stationModalOpen" max-width="600">
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
@@ -285,7 +284,7 @@
             <XIcon class="h-6 w-6" />
           </button>
         </div>
-        
+
         <form class="p-6 space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -297,10 +296,10 @@
                 type="text"
                 id="station-name"
                 required
-                class="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700"
+                class="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white"
               >
             </div>
-            
+
             <div>
               <label for="station-code" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Station Code *
@@ -310,10 +309,10 @@
                 type="text"
                 id="station-code"
                 required
-                class="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700"
+                class="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white"
               >
             </div>
-            
+
             <div>
               <label for="station-constituency" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Constituency *
@@ -322,28 +321,39 @@
                 v-model="stationForm.constituencyId"
                 id="station-constituency"
                 required
-                class="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700"
+                class="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white"
               >
                 <option value="">Select Constituency</option>
                 <option value="1">Takoradi Constituency</option>
                 <option value="2">Sekondi Constituency</option>
               </select>
             </div>
-            
+
             <div>
-              <label for="station-location" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Ward
+              <label for="station-ward" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Ward
               </label>
               <input
                 v-model="stationForm.ward"
                 type="text"
                 id="station-ward"
                 placeholder="Enter Ward Name"
-                class="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700"
+                class="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white"
               >
             </div>
           </div>
-          
+          <div v-if="editingStation">
+            <label for="total-registered-voters" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Enter Total Registered Voters *
+            </label>
+            <input
+              v-model.number="stationForm.total_registered_voters"
+              type="number"
+              id="total-registered-voters"
+              required
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white"
+            >
+          </div>
           <div class="flex justify-end space-x-3 pt-4">
             <button
               type="button"
@@ -356,14 +366,13 @@
               type="button"
               class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
-              {{ editingStation ?  'Update Station' :'Add Station' }}
+              {{ editingStation ? 'Update Station' :'Add Station' }}
             </button>
           </div>
         </form>
       </div>
     </GDialog>
 
-    <!-- Delete Confirmation Dialog -->
     <GDialog v-model="deleteDialogOpen" max-width="600">
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden">
         <div class="p-6 text-center">
@@ -374,7 +383,7 @@
           <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
             Are you sure you want to delete this polling station? This action cannot be undone.
           </div>
-          
+
           <div class="mt-5 flex justify-center space-x-4">
             <button
               type="button"
@@ -398,7 +407,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import {
   MapPinIcon as LocationMarkerIcon,
   UsersIcon,
@@ -408,7 +417,8 @@ import {
   XMarkIcon as XIcon,
   ExclamationTriangleIcon as ExclamationIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  MagnifyingGlassIcon // New import for the search icon
 } from '@heroicons/vue/24/outline'
 
 // Constants
@@ -418,64 +428,18 @@ const constituencies = [
   { id: 2, name: 'Sekondi Constituency' }
 ]
 
-// Pagination
-const itemsPerPage = 6
-const currentPage = ref(1)
-const totalPages = computed(() => Math.ceil(filteredStations.value.length / itemsPerPage))
-const paginatedStations = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  const end = start + itemsPerPage
-  return filteredStations.value.slice(start, end)
-})
-
-// Generate visible page numbers with ellipsis
-const visiblePages = computed(() => {
-  const pages = []
-  const maxVisiblePages = 5 // Show max 5 page numbers at a time
-  
-  if (totalPages.value <= maxVisiblePages) {
-    for (let i = 1; i <= totalPages.value; i++) {
-      pages.push(i)
-    }
-  } else {
-    // Always show first page
-    pages.push(1)
-    
-    // Show ellipsis if current page is not near the start
-    if (currentPage.value > 3) {
-      pages.push('...')
-    }
-    
-    // Show current page and neighbors
-    const start = Math.max(2, currentPage.value - 1)
-    const end = Math.min(totalPages.value - 1, currentPage.value + 1)
-    
-    for (let i = start; i <= end; i++) {
-      if (i !== 1 && i !== totalPages.value) {
-        pages.push(i)
-      }
-    }
-    
-    // Show ellipsis if current page is not near the end
-    if (currentPage.value < totalPages.value - 2) {
-      pages.push('...')
-    }
-    
-    // Always show last page
-    pages.push(totalPages.value)
-  }
-  
-  return pages
-})
-
 // State
 const stations = ref([])
 const selectedConstituency = ref('')
+const selectedWard = ref('') // New state for ward filter
+const searchQuery = ref('') // New state for search query
 const stationModalOpen = ref(false)
 const deleteDialogOpen = ref(false)
 const editingStation = ref(false)
 const stationToDelete = ref(null)
-const members=ref([]);
+const members = ref([]); // This seems to be unused for member count display in the table.
+                          // It's defined but not filtered per station here.
+                          // The `memberCount` in `stationForm` is used for display.
 
 const stationForm = ref({
   id: null,
@@ -483,8 +447,13 @@ const stationForm = ref({
   code: '',
   constituencyId: '',
   ward: '',
-  memberCount: 4
+  memberCount: 0, // Initialize with 0 or a reasonable default
+  total_registered_voters: null // Initialize as null or 0, will be number type
 })
+
+// Pagination
+const itemsPerPage = 6
+const currentPage = ref(1)
 
 // Initialize data
 const initializeData = () => {
@@ -507,15 +476,93 @@ const saveData = () => {
 
 // Computed properties
 const filteredStations = computed(() => {
-  if (!selectedConstituency.value) return stations.value
-  return stations.value.filter(station => station.constituencyId == selectedConstituency.value)
+  let filtered = stations.value;
+
+  // Filter by Constituency
+  if (selectedConstituency.value) {
+    filtered = filtered.filter(station => station.constituencyId == selectedConstituency.value);
+  }
+
+  // Filter by Ward
+  if (selectedWard.value) {
+    filtered = filtered.filter(station => station.ward && station.ward.toLowerCase() === selectedWard.value.toLowerCase());
+  }
+
+  // Search by Station Name
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(station => station.name.toLowerCase().includes(query));
+  }
+
+  // Reset currentPage to 1 when filters or search change
+  // This is handled by the watch effect below
+  return filtered;
+});
+
+const totalPages = computed(() => Math.ceil(filteredStations.value.length / itemsPerPage))
+const paginatedStations = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return filteredStations.value.slice(start, end)
 })
+
+// Generate visible page numbers with ellipsis
+const visiblePages = computed(() => {
+  const pages = []
+  const maxVisiblePages = 5 // Show max 5 page numbers at a time
+
+  if (totalPages.value <= maxVisiblePages) {
+    for (let i = 1; i <= totalPages.value; i++) {
+      pages.push(i)
+    }
+  } else {
+    // Always show first page
+    pages.push(1)
+
+    // Show ellipsis if current page is not near the start
+    if (currentPage.value > 3) {
+      pages.push('...')
+    }
+
+    // Show current page and neighbors
+    const start = Math.max(2, currentPage.value - 1)
+    const end = Math.min(totalPages.value - 1, currentPage.value + 1)
+
+    for (let i = start; i <= end; i++) {
+      if (i !== 1 && i !== totalPages.value) {
+        pages.push(i)
+      }
+    }
+
+    // Show ellipsis if current page is not near the end
+    if (currentPage.value < totalPages.value - 2) {
+      pages.push('...')
+    }
+
+    // Always show last page
+    pages.push(totalPages.value)
+  }
+
+  return pages
+})
+
+// Get unique wards for the filter dropdown
+const uniqueWards = computed(() => {
+  const wards = new Set();
+  stations.value.forEach(station => {
+    if (station.ward) {
+      wards.add(station.ward);
+    }
+  });
+  return Array.from(wards).sort(); // Return sorted unique wards
+});
+
 
 const stats = computed(() => {
   const filtered = filteredStations.value
   const memberCounts = filtered.map(s => s.memberCount || 0)
   const maxMembers = Math.max(...memberCounts, 0)
-  
+
   return {
     totalStations: filtered.length,
     totalMembers: memberCounts.reduce((a, b) => a + b, 0),
@@ -528,9 +575,11 @@ const stats = computed(() => {
 // CRUD Operations
 const openStationModal = (station = null) => {
   if (station && station.id) {
+    // Editing existing station
     editingStation.value = true
     stationForm.value = JSON.parse(JSON.stringify(station))
   } else {
+    // Creating new station
     editingStation.value = false
     stationForm.value = {
       id: null,
@@ -538,7 +587,8 @@ const openStationModal = (station = null) => {
       code: '',
       constituencyId: selectedConstituency.value || '',
       ward: '',
-      memberCount: 0
+      memberCount: 0,
+      total_registered_voters: null // Ensure this is reset for new stations
     }
   }
   stationModalOpen.value = true
@@ -554,6 +604,12 @@ const handleSubmit = () => {
     return
   }
 
+  // If editing, and the total_registered_voters field is visible, it's also required
+  if (editingStation.value && stationForm.value.total_registered_voters === null) {
+      alert('Please enter the Total Registered Voters for this station.');
+      return;
+  }
+  
   stationForm.value.constituencyId = parseInt(stationForm.value.constituencyId)
 
   if (editingStation.value) {
@@ -566,8 +622,8 @@ const handleSubmit = () => {
 }
 
 const createStation = () => {
-  const newId = stations.value.length > 0 
-    ? Math.max(...stations.value.map(s => s.id)) + 1 
+  const newId = stations.value.length > 0
+    ? Math.max(...stations.value.map(s => s.id)) + 1
     : 1
 
   stations.value.push({
@@ -608,22 +664,28 @@ const deleteStation = () => {
   stationToDelete.value = null
 }
 
-
-
 const getConstituencyName = (id) => {
   const constituency = constituencies.find(c => c.id === id)
   return constituency ? constituency.name : 'N/A'
 }
 
+// Watchers to reset pagination when filters or search change
+watch([selectedConstituency, selectedWard, searchQuery], () => {
+  currentPage.value = 1;
+});
+
 // Initialize component
 onMounted(() => {
   initializeData()
   loadData()
-const allMembers = JSON.parse( localStorage.getItem('partyMembers') || [])
-members.value = allMembers.filter(m=> m.polling_station?.toLowerCase().trim()===stations.value.name?.toLowerCase().trim())
-console.log('mem', members.value.length)
-
-})
+  // The 'members' ref is currently not used to dynamically count members per station in the table.
+  // The 'memberCount' property on each station object is used instead.
+  // If you intend to use a global 'partyMembers' list for dynamic counts,
+  // you'll need to modify the 'memberCount' calculation in the table rows
+  // and potentially update station objects when members are added/removed.
+  // const allMembers = JSON.parse(localStorage.getItem('partyMembers') || '[]');
+  // members.value = allMembers; // If you need a global list of members
+});
 </script>
 
 <style scoped>

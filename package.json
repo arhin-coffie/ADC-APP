@@ -10,10 +10,12 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.2",
     "@heroicons/vue": "^2.2.0",
     "chart.js": "^3.9.1",
     "gitart-vue-dialog": "^3.1.0",
     "pinia": "^2.1.4",
+    "sweetalert2": "^11.22.2",
     "vue": "^3.3.4",
     "vue-chart-3": "^3.1.8",
     "vue-final-modal": "^4.5.5",

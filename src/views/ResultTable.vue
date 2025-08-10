@@ -39,7 +39,6 @@
           <option value="all">All</option>
           <option value="draft">Draft</option>
           <option value="verified">Verified</option>
-          <option value="finalized">Finalized</option>
         </select>
       </div>
     </div>

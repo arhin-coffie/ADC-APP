@@ -1,15 +1,14 @@
 <template>
   <div class="bg-white rounded-xl shadow-lg overflow-hidden mt-4">
-    <!-- Header Section -->
     <div class="p-4 border-b border-gray-200">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
         <div>
           <h2 class="text-xl font-bold text-gray-800 gap-4">
             All Members 
             <span class="text-green-600">({{ members.length }})</span>
-            <span v-if="selectedWard" class="text-xl font-bold text-gray-800">{{ selectedWard}}Members:<span class="text-green-600">({{ wardMemberCount }})</span>   
+            <span v-if="selectedWard" class="text-xl font-bold text-gray-800">{{ selectedWard}}Members:<span class="text-green-600">({{ wardMemberCount }})</span> 
               Number of stations<span class="text-green-600">({{ wardStationCount}})</span> </span>
-            <span v-if="selectedStation" class="text-purple-600 ml-2">Station: <span class="text-green-600"></span>{{ stationMemberCount }} members</span>
+            <span v-if="selectedStation" class="text-purple-600 ml-2">Station: <span class="text-green-600">{{ stationMemberCount }} members</span></span>
           </h2>
           <p class="text-xs text-gray-500">Manage your party members</p>
         </div>
@@ -39,7 +38,6 @@
         </div>
       </div>
       
-      <!-- Filter Row - Collapsible -->
       <div v-if="showFilters" class="grid grid-cols-1 md:grid-cols-5 gap-3 mt-3">
         <div>
           <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
@@ -100,56 +98,55 @@
       </div>
     </div>
     
-    <!-- Members Table -->
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
+     <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
-            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Party/Voter's ID</th>
-            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name/Phone-N</th>
-            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ward</th>
-            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Station</th>
-            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
-            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th scope="col" class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+            <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Party/Voter's ID</th>
+            <th scope="col" class="px-4 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Name/Phone-N</th>
+            <th scope="col" class="px-4 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Ward</th>
+            <th scope="col" class="px-4 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Station</th>
+            <th scope="col" class="px-4 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Position</th>
+            <th scope="col" class="px-4 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th scope="col" class="px-4 py-3 text-right text-sm font-medium text-gray-500 uppercase tracking-wider">Action</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
           <tr v-for="member in paginatedMembers" :key="member.id" class="hover:bg-gray-50 transition-colors">
-            <td class="px-4 py-2">
-              <div class="text-xs font-medium text-gray-900">{{ member.partyId || 'N/A' }}</div>
-              <div class="text-xs text-gray-500">{{ member.voterId || 'N/A' }}</div>
+            <td class="px-4 py-6">
+              <div class="text-sm font-medium text-gray-900">{{ member.partyId || 'N/A' }}</div>
+              <div class="text-sm text-gray-500">{{ member.voterId || 'N/A' }}</div>
             </td>
-            <td class="px-4 py-2">
+            <td class="px-4 py-3">
               <div class="flex items-center">
-                <div class="flex-shrink-0 h-8 w-8 flex items-center justify-center bg-gray-100 rounded-full">
-                  <UsersIcon class="h-4 w-4 text-gray-500" />
+                <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-gray-100 rounded-full">
+                  <UsersIcon class="h-5 w-5 text-gray-500" />
                 </div>
-                <div class="ml-3">
-                  <div class="text-xs font-medium text-gray-900">{{ member.name }}</div>
-                  <div class="text-xs text-gray-500">{{ member.phone || 'N/A' }}</div>
+                <div class="ml-4">
+                  <div class="text-sm font-medium text-gray-900">{{ member.name }}</div>
+                  <div class="text-sm text-gray-500">{{ member.phone || 'N/A' }}</div>
                 </div>
               </div>
             </td>
-            <td class="px-4 py-2 text-xs text-gray-500">
+            <td class="px-4 py-3 text-sm text-gray-500">
               <div class="flex items-center">
-                <LocationMarkerIcon class="h-3 w-3 mr-1 text-gray-400" />
+                <LocationMarkerIcon class="h-4 w-4 mr-1 text-gray-400" />
                 {{ member.ward || 'N/A' }}
               </div>
             </td>
-            <td class="px-4 py-2 text-xs text-gray-500">{{ member.poll_Station || 'N/A' }}</td>
-            <td class="px-4 py-2">
-              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" 
+            <td class="px-4 py-3 text-sm text-gray-500">{{ member.poll_Station || 'N/A' }}</td>
+            <td class="px-4 py-3">
+              <span class="px-3 inline-flex text-sm leading-6 font-semibold rounded-full" 
                     :class="positionClasses(member.position)">
                 {{ member.position || 'N/A' }}
               </span>
             </td>
-            <td class="px-4 py-2">
+            <td class="px-4 py-3">
               <span :class="statusClasses(member.status)">
               <select 
                 v-model="member.status"
                 @change="updateMemberStatus(member)"
-                class="text-xs border border-gray-300 rounded focus:ring-green-500 focus:border-green-500"
+                class="text-sm border border-gray-300 rounded focus:ring-green-500 focus:border-green-500"
               >
                 <option class="text-green-600" value="Active">Active</option>
                 <option class="text-yellow-600" value="Inactive">Inactive</option>
@@ -157,7 +154,7 @@
               </select>
               </span>
             </td>
-            <td class="px-4 py-2 text-right text-xs font-medium">
+            <td class="px-4 py-3 text-right text-sm font-medium">
               <button @click="editMember(member)" class="text-green-600 hover:text-green-900 mr-2">Edit</button>
               <button @click="confirmDelete(member.id)" class="text-red-600 hover:text-red-900">Delete</button>
             </td>
@@ -166,7 +163,6 @@
       </table>
     </div>
     
-    <!-- Pagination Controls -->
     <div class="p-3 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center bg-gray-50">
       <div class="text-xs text-gray-500 mb-2 sm:mb-0">
         Showing <span class="font-medium">{{ showingStart }}</span> to <span class="font-medium">{{ showingEnd }}</span> of <span class="font-medium">{{ filteredMembers.length }}</span> members
@@ -203,7 +199,6 @@
       </div>
     </div>
 
-    <!-- Add/Edit Member Dialog -->
     <GDialog v-model="dialogState" max-width="600">
       <div class="bg-white rounded-xl shadow w-full">
         <div class="flex items-center justify-between p-4 border-b bg-[#2f855a] rounded-t-lg">
@@ -220,7 +215,6 @@
         </div>
         
         <form @submit.prevent="submitForm" class="p-6 space-y-5">
-          <!-- Name Field -->
           <div>
             <InputField 
               type="text" 
@@ -235,7 +229,6 @@
             />
           </div>
           
-          <!-- Position and Party ID Row -->
           <div class="grid grid-cols-2 gap-5">
             <div>
               <InputField 
@@ -266,7 +259,6 @@
             </div>
           </div>
           
-          <!-- Phone Number -->
           <div>
             <InputField 
               type="tel" 
@@ -281,9 +273,7 @@
             />
           </div>
           
-          <!-- Gender and Position Row -->
           <div class="grid grid-cols-2 gap-5">
-            <!-- Gender Select -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
               <select 
@@ -298,7 +288,6 @@
               </select>
             </div>
             
-            <!-- Position Select -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Select Position</label>
               <select 
@@ -314,7 +303,6 @@
             </div>
           </div>
           
-          <!-- File Upload -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Upload Photo</label>
             <input 
@@ -325,9 +313,7 @@
             />
           </div>
           
-          <!-- Location Selectors -->
           <div class="grid grid-cols-3 gap-4">
-            <!-- Region -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Select Region</label>
               <select 
@@ -342,7 +328,6 @@
               </select>
             </div>
             
-            <!-- Constituency -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Select Constituency</label>
               <select 
@@ -357,7 +342,6 @@
               </select>
             </div>
             
-            <!-- Ward -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Select Ward</label>
               <select 
@@ -372,7 +356,6 @@
               </select>
             </div>
             
-            <!-- Station -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Select Station</label>
               <div class="relative">
@@ -394,7 +377,6 @@
             </div>
           </div>
           
-          <!-- Submit Button -->
           <div class="flex justify-end pt-4">
             <button 
               type="submit" 
@@ -407,7 +389,6 @@
       </div>
     </GDialog>
 
-    <!-- Delete Confirmation Dialog -->
     <GDialog v-model="deleteDialogState" max-width="400">
       <div class="bg-white rounded-xl shadow w-full p-6">
         <div class="text-center">
@@ -462,7 +443,7 @@ const members = ref([]);
 const showFilters = ref(true);
 // Pagination state
 const currentPage = ref(1);
-const itemsPerPage = ref(6);
+const itemsPerPage = ref(10);
 const maxVisiblePages = ref(7);
 
 // Current member data
@@ -797,17 +778,17 @@ const positionClasses = (position) => {
   
   return `${baseClasses} ${positionColors[position] || 'bg-gray-100 text-gray-800'}`;
 };
+
 const statusClasses = (status) => {
-  const baseClasses = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full';
+  const baseClasses = ''; // Removed 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full'
   
   const statusColors = {
-    'Deceased': ' text-red-800',
+    'Deceased': 'text-red-800',
     'Active': 'text-green-800',
     'Inactive': 'text-yellow-600',
-   
   };
   
-  return `${baseClasses} ${statusColors[status] || 'bg-gray-100 text-gray-800'}`;
+  return `${baseClasses} ${statusColors[status] || 'text-gray-800'}`;
 };
 
 
@@ -882,15 +863,12 @@ onMounted(() => {
 <style scoped>
 /* Tighten up table row spacing */
 table {
-  border-spacing: 0 2px;
-  border-collapse: separate;
+  /* This ensures the border-spacing is controlled if not already set by a reset or framework */
+  border-collapse: collapse; 
+  width: 100%; /* Ensure table takes full width */
 }
 
-/* Compact select dropdown */
-select {
-  padding-top: 0.4rem;
-  padding-bottom: 0.4rem;
-  font-size: 0.75rem;
-  line-height: 1rem;
+th, td {
+  padding: 0.375rem 1rem; /* Equivalent to py-1.5 (6px) and px-4 (16px) */
 }
 </style>

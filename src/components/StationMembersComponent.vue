@@ -13,10 +13,8 @@
       </div>
     </div>
 
-    <!-- Filters and Actions -->
     <div class="bg-white rounded-lg shadow-md p-4 mb-6">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <!-- Search Box -->
         <div class="relative flex-1">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <MagnifyingGlassIcon class="h-5 w-5 text-gray-400" />
@@ -29,7 +27,6 @@
           />
         </div>
 
-        <!-- Filter Controls -->
         <div class="flex flex-col sm:flex-row gap-3">
           <div class="relative">
             <select 
@@ -75,8 +72,7 @@
           </div>
         </div>
 
-        <!-- Create Member Button -->
-        <button 
+        <button @click="openAddMemberModal"
           class="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
         >
           <PlusIcon class="h-5 w-5 mr-2" />
@@ -84,13 +80,11 @@
         </button>
       </div>
 
-      <!-- Filter Count -->
       <div class="mt-3 text-sm text-gray-600">
         Showing {{ filteredMembers.length }} of {{ members.length }} members
       </div>
     </div>
 
-    <!-- Members Table -->
     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
@@ -103,6 +97,7 @@
               <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Phone Number</th>
               <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Position</th>
               <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-right text-sm font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
@@ -145,7 +140,7 @@
               
               <td class="px-6 py-4">
                 <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full" 
-                      :class="positionClasses(member.position)">
+                       :class="positionClasses(member.position)">
                   {{ member.position || 'N/A' }}
                 </span>
               </td>
@@ -161,19 +156,192 @@
                   <option value="Deceased" class="text-red-800">Deceased</option>
                 </select>
               </td>
+               <td class="px-6 py-4 text-right text-sm font-medium">
+                  <button @click="editMember(member)" class="text-green-600 hover:text-green-900 mr-2">Edit</button>
+                  <button @click="confirmDelete(member.id)" class="text-red-600 hover:text-red-900">Delete</button>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
+
+  <GDialog v-model="dialogState" max-width="600">
+      <div class="bg-white rounded-xl shadow w-full">
+        <div class="flex items-center justify-between p-4 border-b bg-[#2f855a] rounded-t-lg">
+          <h3 class="text-lg font-semibold text-white">
+            {{ editMode ? "Edit party member" : "Add party member" }}
+          </h3>
+          <button 
+            type="button" 
+            @click="closeDialog"
+            class="p-1 rounded-full hover:bg-green-800 transition-colors"
+          >
+            <img src="../assets/cancel.svg" alt="close-icon" class="w-5 h-5" />
+          </button>
+        </div>
+        
+        <form @submit.prevent="submitForm" class="p-6 space-y-5">
+          <div>
+            <InputField 
+              type="text" 
+              id="name" 
+              label="Enter name" 
+              v-model="currentMember.name"
+              :requireTag="true" 
+              placeholder="Enter full name of party member"
+              :maxlength="50" 
+              :showlength="false" 
+              class="w-full"
+            />
+          </div>
+          
+          <div class="grid grid-cols-2 gap-5">
+            <div>
+              <InputField 
+                type="text" 
+                id="VotersId" 
+                label="Voters ID" 
+                v-model="currentMember.voterId"
+                :requireTag="false" 
+                placeholder="Enter unique Voter identifier"
+                :maxlength="50" 
+                :showlength="false" 
+                class="w-full"
+              />
+            </div>
+            
+            <div>
+              <InputField 
+                type="text" 
+                id="partyId" 
+                label="Party ID" 
+                v-model="currentMember.partyId"
+                :requireTag="false" 
+                placeholder="Enter unique party identifier"
+                :maxlength="50" 
+                :showlength="false" 
+                class="w-full"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <InputField 
+              type="tel" 
+              id="phone" 
+              label="Phone Number" 
+              v-model="currentMember.phone"
+              :requireTag="false" 
+              placeholder="Enter Phone Number"
+              :maxlength="15" 
+              :showlength="false" 
+              class="w-full"
+            />
+          </div>
+          
+          <div class="grid grid-cols-2 gap-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+              <select 
+                v-model="currentMember.gender"
+                class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-green-500 focus:border-green-500"
+                required
+              >
+                <option value="">Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Select Position</label>
+              <select 
+                v-model="currentMember.position"
+                class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-green-500 focus:border-green-500"
+                required
+              >
+                <option value="">Select Position</option>
+                <option v-for="position in allPositions" :key="position.id" :value="position.name">
+                  {{ position.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Upload Photo</label>
+            <input 
+              type="file" 
+              @change="handleFileUpload" 
+              class="w-full p-2 border border-gray-200 rounded-lg hover:border-green-400 focus:ring-green-500 focus:border-green-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+              placeholder="Upload member's profile photo"
+            />
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Region</label>
+              <input 
+                  type="text" 
+                  v-model="currentMember.region" 
+                  disabled
+                  class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Constituency</label>
+              <input 
+                  type="text" 
+                  v-model="currentMember.constituency" 
+                  disabled
+                  class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Ward</label>
+              <input 
+                  type="text" 
+                  v-model="currentMember.ward" 
+                  disabled
+                  class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Polling Station</label>
+              <input 
+                  type="text" 
+                  v-model="currentMember.poll_Station" 
+                  disabled
+                  class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+              />
+            </div>
+          </div>
+          
+          <div class="flex justify-end pt-4">
+            <button 
+              type="submit" 
+              class="bg-green-700 hover:bg-green-800 text-white px-8 py-2.5 rounded-lg font-medium transition-colors"
+            >
+              {{ editMode ? "Update Member" : "Add Member" }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </GDialog>
 </template>
 
 <script setup>
 import { onMounted, ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { GDialog } from 'gitart-vue-dialog';
+import InputField from '../components/InputField.vue';
 import { 
-  MapPinIcon as LocationMarkerIcon,
   UsersIcon,
   UserIcon,
   PhoneIcon,
@@ -181,11 +349,29 @@ import {
   ChevronDownIcon,
   PlusIcon
 } from '@heroicons/vue/24/outline';
+import Swal from 'sweetalert2'
 
 const route = useRoute()
-const stationName = route.params.name // e.g. "Service 2 Primary"
-const wardName = "Sample Ward" // You can replace this with dynamic data
+const stationName = route.params.name
+const stationId = route.params.id
 const members = ref([])
+const dialogState = ref(false)
+const editMode = ref(false)
+const currentMember = ref({
+  id: null,
+  name: '',
+  voterId: '',
+  partyId: '',
+  phone: '',
+  gender: '',
+  position: '',
+  region: '',
+  constituency: '',
+  ward: '',
+  poll_Station: '',
+  status: 'Active',
+  photo: null,
+})
 
 // Filter states
 const searchQuery = ref('')
@@ -193,22 +379,78 @@ const genderFilter = ref('')
 const positionFilter = ref('')
 const statusFilter = ref('')
 
-onMounted(() => {
-  const allMembers = JSON.parse(localStorage.getItem('partyMembers') || '[]')
+// Dummy data for locations
+const locations = [
+  {
+    id: 1, 
+    region: 'Western Region', 
+    constituency: 'Sekondi Constituency', 
+    ward: 'NEW TAKORADI UPPER', 
+    polling_station: 'Service 2 Primary'
+  },
+  {
+    id: 2, 
+    region: 'Western Region', 
+    constituency: 'Sekondi Constituency', 
+    ward: 'NEW TAKORADI UPPER', 
+    polling_station: 'Service 1 Primary'
+  },
+  {
+    id: 3, 
+    region: 'Western Region', 
+    constituency: 'Takoradi Constituency', 
+    ward: 'AMANFUL EAST', 
+    polling_station: 'Takoradi Library'
+  },
+  {
+    id: 4, 
+    region: 'Western Region', 
+    constituency: 'Takoradi Constituency', 
+    ward: 'AMANFUL WEST', 
+    polling_station: 'Market Square'
+  },
+]
 
-  // Only members assigned to this polling station
-  members.value = allMembers.filter(member =>
+const allPositions = [
+  { id: 1, name: 'Chairman' },
+  { id: 2, name: 'Secretary' },
+  { id: 3, name: 'Organizer' },
+  { id: 4, name: 'Treasurer' },
+  { id: 5, name: 'W/Organizer' },
+  { id: 6, name: 'Y/Organizer' },
+  { id: 7, name: 'Comm.Officer' },
+  { id: 8, name: 'Exec.Member' },
+]
+
+// --- Local Storage Functions ---
+const loadMembers = () => {
+  const allMembers = JSON.parse(localStorage.getItem('partyMembers') || '[]')
+  members.value = allMembers.filter(member => 
     member.poll_Station?.toLowerCase().trim() === stationName.toLowerCase().trim()
   )
+}
+
+const saveMembers = () => {
+  const allMembers = JSON.parse(localStorage.getItem('partyMembers') || '[]')
+  // Remove existing members for this station
+  const otherMembers = allMembers.filter(member =>
+    member.poll_Station?.toLowerCase().trim() !== stationName.toLowerCase().trim()
+  )
+  // Add updated members for this station back
+  localStorage.setItem('partyMembers', JSON.stringify([...otherMembers, ...members.value]))
+}
+
+// --- Component Lifecycle Hooks ---
+onMounted(() => {
+  loadMembers()
 })
 
-// Computed property for filtered members
+// --- Computed Properties ---
 const filteredMembers = computed(() => {
   return members.value.filter(member => {
     const matchesSearch = member.name?.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
-                         member.voterId?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                         member.partyId?.toLowerCase().includes(searchQuery.value.toLowerCase())
-    
+                          member.voterId?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                          member.partyId?.toLowerCase().includes(searchQuery.value.toLowerCase())
     const matchesGender = !genderFilter.value || member.gender === genderFilter.value
     const matchesPosition = !positionFilter.value || member.position === positionFilter.value
     const matchesStatus = !statusFilter.value || member.status === statusFilter.value
@@ -217,6 +459,105 @@ const filteredMembers = computed(() => {
   })
 })
 
+const getStationDetails = () => {
+  return locations.find(loc => loc.polling_station?.toLowerCase().trim() === stationName.toLowerCase().trim())
+}
+
+// --- Member Management Functions ---
+const openAddMemberModal = () => {
+  editMode.value = false
+  // Reset form fields
+  currentMember.value = {
+    id: null,
+    name: '',
+    voterId: '',
+    partyId: '',
+    phone: '',
+    gender: '',
+    position: '',
+    region: '',
+    constituency: '',
+    ward: '',
+    poll_Station: '',
+    status: 'Active',
+    photo: null,
+  }
+
+  // Set default location values based on the current station
+  const stationDetails = getStationDetails()
+  if (stationDetails) {
+      currentMember.value.region = stationDetails.region
+      currentMember.value.constituency = stationDetails.constituency
+      currentMember.value.ward = stationDetails.ward
+      currentMember.value.poll_Station = stationDetails.polling_station
+  }
+
+  dialogState.value = true
+}
+
+const editMember = (member) => {
+  editMode.value = true
+  // Deep clone the member object to avoid direct mutation
+  currentMember.value = { ...member }
+  dialogState.value = true
+}
+
+const submitForm = () => {
+  // Check if it's an edit or a new member
+  if (editMode.value) {
+    const index = members.value.findIndex(m => m.id === currentMember.value.id)
+    if (index !== -1) {
+      members.value[index] = { ...currentMember.value }
+      Swal.fire('Updated!', 'Member details have been updated.', 'success')
+    }
+  } else {
+    // Generate a unique ID for the new member
+    const newId = Date.now()
+    const newMember = { ...currentMember.value, id: newId }
+    members.value.push(newMember)
+    Swal.fire('Added!', 'New member has been added successfully.', 'success')
+  }
+  
+  saveMembers()
+  closeDialog()
+}
+
+const confirmDelete = (memberId) => {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      deleteMember(memberId)
+      Swal.fire('Deleted!', 'The member has been deleted.', 'success')
+    }
+  })
+}
+
+const deleteMember = (memberId) => {
+  members.value = members.value.filter(member => member.id !== memberId)
+  saveMembers()
+}
+
+const closeDialog = () => {
+  dialogState.value = false
+}
+
+const handleFileUpload = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    // You can handle file upload logic here, e.g., storing the file URL
+    // For this example, we'll just store the file object.
+    currentMember.value.photo = file
+  }
+}
+
+// --- CSS Class Helpers ---
 const positionClasses = (position) => {
   const positionColors = {
     'Chairman': 'bg-purple-100 text-purple-800',
@@ -244,6 +585,7 @@ const statusColor = (status) => {
 </script>
 
 <style scoped>
+/* Your existing styles */
 /* Improved table styling */
 table {
   border-spacing: 0 8px;
@@ -294,5 +636,4 @@ select {
   filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
 }
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
-
 </style>

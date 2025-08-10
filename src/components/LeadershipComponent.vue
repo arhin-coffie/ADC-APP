@@ -1,6 +1,5 @@
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16">
-    <!-- Header Section -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
       <div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Constituency Executives</h1>
@@ -50,14 +49,12 @@
       </div>
     </div>
 
-    <!-- Leadership Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div 
         v-for="leader in paginatedLeaders" 
         :key="leader.id" 
         class="relative bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
       >
-        <!-- View Button -->
         <router-link
           :to="{ name: 'MemberDetails', params: { id: leader.id } }"
           class="absolute top-3 right-3 items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
@@ -71,7 +68,10 @@
               <img class="h-12 w-12 rounded-full" :src="leader.avatar" :alt="leader.name" />
             </div>
             <div class="ml-4">
-              <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ leader.name }}</h3>
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+                <UserCircleIcon class="h-5 w-5 mr-1.5 text-gray-500" />
+                {{ leader.name }}
+              </h3>
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ currentPosition(leader) }}</p>
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1" 
                     :class="levelBadgeClasses(leader.level)">
@@ -124,7 +124,6 @@
       </div>
     </div>
 
-    <!-- Pagination -->
     <div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="text-sm text-gray-500 dark:text-gray-400">
         Showing <span class="font-medium">{{ pagination.startIndex + 1 }}</span> to 
@@ -179,7 +178,6 @@
       </div>
     </div>
 
-    <!-- Leader Modal -->
     <GDialog v-model="leaderModalOpen" max-width="800">
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden">
         <div class="bg-green-600 px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
@@ -193,7 +191,6 @@
         
         <form @submit.prevent="handleSubmit" class="p-6 space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Name Field -->
             <div>
               <label for="leader-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Leader Name *
@@ -208,7 +205,6 @@
               >
             </div>
             
-            <!-- Position Field -->
             <div>
               <label for="leader-position" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Position *
@@ -226,7 +222,6 @@
               </select>
             </div>
             
-            <!-- Level Field -->
             <div>
               <label for="leader-level" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Level *
@@ -245,7 +240,6 @@
               </select>
             </div>
             
-            <!-- Location Field -->
             <div>
               <label for="leader-location" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Location *
@@ -292,7 +286,6 @@
                 class="w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700"
               >
             </div>
-            <!-- Start Date Field -->
             <div>
               <label for="start-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Start Date *
@@ -306,7 +299,6 @@
               >
             </div>
             
-            <!-- End Date Field -->
             <div>
               <label for="end-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 End Date (optional)
@@ -341,8 +333,7 @@
       </div>
     </GDialog>
 
-    <!-- Revoke Confirmation Dialog -->
-    <GDialog v-model="revokeDialogOpen" max-width="sm">
+    <GDialog v-model="revokeDialogOpen" max-width="500">
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden">
         <div class="p-6 text-center">
           <ExclamationTriangleIcon class="mx-auto h-12 w-12 text-red-600 dark:text-red-400" />
@@ -387,7 +378,8 @@ import {
   ExclamationTriangleIcon,
   MagnifyingGlassIcon,
   PhoneIcon,
-  IdentificationIcon
+  IdentificationIcon,
+  UserCircleIcon // Added this icon
 } from '@heroicons/vue/24/outline'
 
 // Constants
@@ -578,9 +570,9 @@ function getLocationName(leader) {
 function currentPosition(leader) {
   if (!leader) return 'No position'
   return leader.currentPosition || 
-         (leader.positionHistory?.length > 0 
-          ? leader.positionHistory[leader.positionHistory.length - 1].position 
-          : 'No position')
+           (leader.positionHistory?.length > 0 
+           ? leader.positionHistory[leader.positionHistory.length - 1].position 
+           : 'No position')
 }
 
 function formatDate(dateString) {

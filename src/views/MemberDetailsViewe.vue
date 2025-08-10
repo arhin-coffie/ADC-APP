@@ -1,8 +1,6 @@
 <template>
-  <div class="bg-gray-100 mx-4 md:mx-32 md:p-6">
-    <!-- Top Section -->
+  <div class="bg-gray-100 mx-4 md:mx-32 md:p-6 mt-16">
     <div class="mt-8 md:mt-16 bg-gradient-to-r from-ndc-red to-ndc-green rounded-t-xl overflow-hidden relative shadow-lg">
-      <!-- Party Flag on the right -->
       <div class="absolute top-4 right-4 w-16 h-16 md:w-20 md:h-20">
         <img 
           src="https://theheraldghana.com/wp-content/uploads/2022/03/NDC.jpg" 
@@ -11,7 +9,6 @@
         />
       </div>
 
-      <!-- Profile -->
       <div class="flex items-start p-4 md:p-6">
         <div class="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 rounded-full bg-white flex items-center justify-center border-4 border-white shadow-md">
           <img v-if="member.avatar" :src="member.avatar" alt="Profile" class="w-full h-full rounded-full object-cover">
@@ -99,7 +96,6 @@
       </div>
     </div>
 
-    <!-- Tabs -->
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
       <div class="flex overflow-x-auto border-b border-gray-200">
         <button
@@ -125,12 +121,7 @@
             </svg>
             {{ tab.label }}
           </span>
-          <span v-else-if="tab.id === 'suggestions'" class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-            </svg>
-            {{ tab.label }}
-          </span>
+     
           <span v-else-if="tab.id === 'contributions'" class="flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
               <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
@@ -138,17 +129,19 @@
             </svg>
             {{ tab.label }}
           </span>
-          <span v-else class="flex items-center">
+          <span v-else-if="tab.id === 'benefits'" class="flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
             </svg>
+            {{ tab.label }}
+          </span>
+          <span v-else class="flex items-center">
             {{ tab.label }}
           </span>
         </button>
       </div>
 
       <div class="p-4 md:p-6">
-        <!-- Meetings Tab -->
         <div v-if="activeTab === 'meetings'">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-bold text-ndc-green flex items-center">
@@ -158,7 +151,6 @@
               Meetings
             </h3>
             
-            <!-- Meeting Type Filter -->
             <div class="flex items-center space-x-2">
               <label class="text-gray-600 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -204,13 +196,13 @@
                   class="border-b hover:bg-gray-50"
                 >
                   <td class="p-3">{{ index + 1 }}</td>
-                  <td class="p-3">{{ meeting.date }}</td>
+                  <td class="p-3">{{ formatDate(meeting.date) }}</td>
                   <td class="p-3">{{ meeting.topic }}</td>
                   <td class="p-3">{{ meeting.location }}</td>
                   <td class="p-3">
                     <span 
                       class="px-2 py-1 rounded-full text-xs font-semibold"
-                      :class="getMeetingTypeClass(meeting.meeting_type)"
+                      :class="getMeetingClass(meeting.meeting_type)"
                     >
                       {{ meeting.meeting_type }}
                     </span>
@@ -232,7 +224,6 @@
           </div>
         </div>
 
-        <!-- Position History Tab -->
         <div v-else-if="activeTab === 'position-history'" class="text-gray-700">
           <h3 class="text-xl font-bold text-ndc-green mb-4 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -241,7 +232,6 @@
             Position History
           </h3>
           <div class="space-y-4">
-            <!-- Current Position -->
             <div v-if="currentPosition" class="p-4 bg-green-50 border-l-4 border-green-600 rounded shadow">
               <p class="text-sm text-gray-600 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -262,7 +252,6 @@
               <p class="text-sm text-gray-600">No current position found</p>
             </div>
 
-            <!-- Previous Positions -->
             <div v-if="sortedPreviousPositions.length > 0" class="space-y-3">
               <h4 class="text-md font-bold text-gray-800 mt-4 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -294,31 +283,8 @@
           </div>
         </div>
 
-        <!-- Suggestions Tab -->
-        <div v-else-if="activeTab === 'suggestions'" class="text-gray-700">
-          <h3 class="text-xl font-bold text-ndc-green mb-4 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-            </svg>
-            Suggestions
-          </h3>
-          <div v-if="!memberData.suggestions || memberData.suggestions.length === 0" class="text-gray-500 flex flex-col items-center py-8">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p class="mt-2">No suggestions available.</p>
-          </div>
-          <div v-else class="space-y-4">
-            <div v-for="(suggestion, index) in memberData.suggestions" :key="index" class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-              <p class="font-medium text-gray-900">{{ suggestion.title }}</p>
-              <p class="text-sm text-gray-600 mt-1">{{ suggestion.description }}</p>
-              <p class="text-xs text-gray-500 mt-2">{{ formatDate(suggestion.date) }}</p>
-            </div>
-          </div>
-        </div>
 
-        <!-- Contributions Tab -->
-        <div v-else-if="activeTab === 'contributions'" class="text-gray-700">
+      <div v-else-if="activeTab === 'contributions'" class="text-gray-700">
           <h3 class="text-xl font-bold text-ndc-green mb-4 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 20 20" fill="currentColor">
               <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
@@ -326,50 +292,56 @@
             </svg>
             Contributions
           </h3>
-          <div v-if="!memberData.contributions || memberData.contributions.length === 0" class="text-gray-500 flex flex-col items-center py-8">
+          <div v-if="!filteredContributions.length" class="text-gray-500 flex flex-col items-center py-8">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p class="mt-2">No contributions available.</p>
           </div>
           <div v-else class="space-y-4">
-            <div v-for="(contribution, index) in memberData.contributions" :key="index" class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div v-for="(contribution, index) in filteredContributions" :key="index" class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
               <div class="flex justify-between items-start">
                 <div>
-                  <p class="font-medium text-gray-900">{{ contribution.type }}</p>
+                  <p class="font-medium text-gray-900">{{ contribution.type }}</p>                <span class="text-sm font-semibold text-ndc-green">{{ contribution.typeOfItem }}</span>
+
                   <p class="text-sm text-gray-600 mt-1">{{ contribution.description }}</p>
                 </div>
-                <span class="text-sm font-semibold text-ndc-green">{{ contribution.amount }}</span>
+                   <button @click="openDeletreContriDialog(contribution.index)" class="text-red-600">---</button>
+
               </div>
               <p class="text-xs text-gray-500 mt-2">{{ formatDate(contribution.date) }}</p>
             </div>
           </div>
         </div>
 
-        <!-- Benefits Tab -->
-        <div v-else-if="activeTab === 'now'" class="text-gray-700">
+        
+        <div v-else-if="activeTab === 'benefits'" class="text-gray-700">
           <h3 class="text-xl font-bold text-ndc-green mb-4 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
             </svg>
             Current Benefits
           </h3>
-          <div v-if="!memberData.currentActivities || memberData.currentActivities.length === 0" class="text-gray-500 flex flex-col items-center py-8">
+          <div v-if="!filteredBenefits.length" class="text-gray-500 flex flex-col items-center py-8">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p class="mt-2">No current benefits available.</p>
+            <p class="mt-2">No benefits available.</p>
           </div>
           <div v-else class="space-y-4">
-            <div v-for="(activity, index) in memberData.currentActivities" :key="index" class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-              <p class="font-medium text-gray-900">{{ activity.type }}</p>
-              <p class="text-sm text-gray-600 mt-1">{{ activity.description }}</p>
-              <p class="text-xs text-gray-500 mt-2">Status: <span :class="activity.status === 'Active' ? 'text-green-600' : 'text-yellow-600'">{{ activity.status }}</span></p>
+            <div v-for="(benefit, index) in filteredBenefits" :key="index" class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="font-medium text-gray-900">{{ benefit.type }}</p>
+                  <p class="text-sm text-gray-600 mt-1">{{ benefit.description }}</p>
+                </div>
+                <span class="text-sm font-semibold text-ndc-red">{{ benefit.typeOfItem }}</span>
+              </div>
+              <p class="text-xs text-gray-500 mt-2">{{ formatDate(benefit.date) }}</p>
             </div>
           </div>
         </div>
 
-        <!-- Delete Dialog -->
         <GDialog v-model="deleteDialog" max-width="400">
           <div class="p-4">
             <h3 class="text-lg font-bold text-red-600 mb-2 flex items-center">
@@ -395,6 +367,32 @@
             </div>
           </div>
         </GDialog>
+
+           <GDialog v-model="deleContriDialog" max-width="400">
+          <div class="p-4">
+            <h3 class="text-lg font-bold text-red-600 mb-2 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              Confirm Delete
+            </h3>
+            <p>Are you sure you want to delete this Contribution?</p>
+            <div class="flex justify-end mt-4">
+              <button @click="deleContriDialog = false" class="px-4 py-2 bg-gray-200 rounded mr-2 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+                Cancel
+              </button>
+              <button @click="deleteContribution" class="px-4 py-2 bg-red-600 text-white rounded flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                Delete
+              </button>
+            </div>
+          </div>
+        </GDialog>
       </div>
     </div>
   </div>
@@ -408,6 +406,7 @@ import { GDialog } from 'gitart-vue-dialog';
 const route = useRoute();
 const router = useRouter();
 
+const deleContriDialog=ref(false);
 const activeTab = ref('meetings');
 const deleteDialog = ref(false);
 const deleteIndex = ref(null);
@@ -416,29 +415,17 @@ const meetingFilter = ref('all');
 const tabs = [
   { id: 'meetings', label: 'Meetings' },
   { id: 'position-history', label: 'Position History' },
-  { id: 'suggestions', label: 'Suggestions' },
   { id: 'contributions', label: 'Contributions' },
-  { id: 'now', label: 'Benefits' },
+  { id: 'benefits', label: 'Benefits' }, // Changed 'now' to 'benefits' for clarity
 ];
 
 const member = ref({
-  avatar: '',
-  name: '',
-  currentPosition: '',
-  phone: '',
-  level: '',
-  pollingStation: '',
-  positionHistory: [],
-  location: '',
-  party_id: '',
-  startDate: '',
-  endDate: ''
+  
 });
 
 const memberData = ref({ 
   meetings: [], 
-  suggestions: [], 
-  contributions: [], 
+  contributions: [], // This will hold all benefit_contribution data
   currentActivities: [] 
 });
 
@@ -448,18 +435,20 @@ const filteredMeetings = computed(() => {
   return memberData.value.meetings.filter(meeting => meeting.meeting_type === meetingFilter.value);
 });
 
-const getMeetingTypeClass = (type) => {
+const getMeetingClass = (type) => {
   switch(type) {
     case 'Executive Meeting':
       return 'bg-purple-100 text-purple-800';
-    case 'Ward Meeting':
-      return 'bg-blue-100 text-blue-800';
-    case 'Polling Station':
-      return 'bg-orange-100 text-orange-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
+      case 'Ward Meeting':
+        return 'bg-blue-100 text-blue-800';
+        case 'Polling Station':
+          return 'bg-orange-100 text-orange-800';
+          default:
+            return 'bg-gray-100 text-gray-800';
+          }
 };
+
+
 
 const memberInitials = computed(() => {
   if (!member.value.name) return 'NN';
@@ -468,7 +457,7 @@ const memberInitials = computed(() => {
 });
 
 const meetingCount = computed(() => memberData.value.meetings?.length || 0);
-const isActiveMember = computed(() => meetingCount.value > 5);
+const isActiveMember = computed(() => meetingCount.value = 5);
 
 const currentPosition = computed(() => {
   // First check if there's a position without end date (current position)
@@ -531,13 +520,32 @@ onMounted(() => {
     
     memberData.value = {
       meetings: foundMember.meetings || [],
-      suggestions: foundMember.suggestions || [],
-      contributions: foundMember.contributions || [],
+      // Ensure benefit_contribution is assigned to memberData.value.contributions
+      contributions: foundMember.benefit_contribution || [], 
       currentActivities: foundMember.currentActivities || []
     };
   }
 });
 
+// Refactored computed properties to correctly access memberData.value.contributions
+const filteredBenefits = computed(() => {
+  return (memberData.value.contributions || []).filter(item => item.type.toLowerCase() === 'benefit');
+});
+
+const filteredContributions = computed(() => {
+  return (memberData.value.contributions || []).filter(item => item.type.toLowerCase() === 'contribution');
+});
+const indexContribution = ref();
+function openDeletreContriDialog(index){
+indexContribution.value=index;
+  deleContriDialog.value = true;
+}
+function deleteContribution(){
+if(indexContribution.value !==null){
+memberData.value.contributions.splice(indexContribution.value, 1);
+deleContriDialog.value = false;
+}
+}
 const confirmDelete = (index) => {
   deleteIndex.value = index;
   deleteDialog.value = true;

@@ -1,7 +1,7 @@
 <template>
   <div class="flex mx-64">
     <!-- Fixed Navigation Bar -->
-    <nav class="fixed w-full bg-gradient-to-r from-[#D21011] via-white to-[#006B3D] px-8 py-4 shadow-lg ">
+    <nav class="fixed w-full bg-gradient-to-r from-[#D21011] via-white to-[#006B3D] px-4 py-4 shadow-lg ">
       <div class="container mx-auto flex justify-between items-center ">
         <!-- NDC Logo Section -->
         <div class="flex flex-col">
@@ -12,12 +12,14 @@
         </div>
         
         <!-- Flag Representation -->
-        <div class="flex h-12 mr-12 rounded-md overflow-hidden shadow-md transition-transform duration-300 hover:scale-105">
-          <div class="w-6 bg-[#D21011]"></div>
-          <div class="w-6 bg-white border-l border-r border-gray-200"></div>
-          <div class="w-6 bg-[#006B3D]"></div>
-          <div class="w-6 bg-black"></div>
-        </div>
+        <div class="flex justify-center items-center mr-36">
+        <img
+          src="https://theheraldghana.com/wp-content/uploads/2022/03/NDC.jpg"
+          alt="NDC Flag"
+          class="w-16 h-16 object-contain rounded-full border-2 border-red-600 shadow-md"
+        />
+      </div>
+
       </div>
     </nav>
   </div>

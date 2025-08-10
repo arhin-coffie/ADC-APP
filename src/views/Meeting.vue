@@ -1,6 +1,7 @@
 
     
 <template>
+  <div class="">
   <div class=" mx-auto p-8 mt-24">
   <div class="absolute top-48  w-60 h-60 ml-60 md:h-60">
         <img 
@@ -8,18 +9,16 @@
           alt="NDC Flag" 
           class="w-full h-full object-contain"
         />
-        <h1>Getting late for meeting</h1>
+   
       </div>    <h1 class="text-3xl font-bold mb-8 text-center">Record Meetings</h1>
     
     <!-- First Row -->
     <div class="flex flex-wrap justify-center gap-4 mb-6">
-      <!-- Button 1: Gradient -->
-      <button class="px-6 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-       Commitment
-      </button>
+   
+
       
       <!-- Button 2: Neumorphic -->
-      <button class="px-6 py-3 rounded-lg bg-gray-100 text-gray-700 font-semibold shadow-neu hover:shadow-neu-inset transition-all duration-300 border border-gray-200">
+      <button  class="px-6 py-3 rounded-lg bg-gray-100 text-gray-700 font-semibold shadow-neu hover:shadow-neu-inset transition-all duration-300 border border-gray-200">
         Perseverance
       </button>
       
@@ -82,6 +81,22 @@
     </div>
   </div>
 
+
+
+
+  <div class=" mt-6 justify-center justify-items-center">
+    <H1 class="text-3xl font-bold text-center">Record Contribution and Benefit</H1>
+    <div class=" mt-6">
+      <button  @click="openBenefitDialog()" class="px-6 py-3 rounded-lg border-2 border-emerald-500 text-emerald-600 font-semibold hover:bg-emerald-500 hover:text-white transition-all duration-300">
+        Create Contribution/Benefit
+      </button>
+      </div>
+  </div>
+
+  </div>
+
+
+<!-- create meeting dialo -->
     <GDialog v-model="dialogState" max-width="500">
       <div class="flex items-start justify-between p-4 border-b bg-[#2f855a] rounded-t dark:border-gray-600">
         <h3 class="H600 N900 text-white">
@@ -189,8 +204,194 @@
         </div>
       </form>
     </GDialog> 
+
+
+    <GDialog v-model="benefitDialog" max-width="500">
+  <div class="flex items-start justify-between p-4 border-b bg-[#2f855a] rounded-t">
+    <h3 class="H600 N900 text-white">Add Contribution or Benefit</h3>
+    <button @click="benefitDialog = false" class="text-white text-lg">×</button>
+  </div>
+
+  <form class="px-4 pt-4 space-y-4">
+    <!-- Select Name -->
+    <div>
+      <label class="block font-medium text-sm text-gray-700">Select Name</label>
+      <multiselect
+        v-model="contributionData.names"
+        :options="members"
+        :multiple="true"
+        :close-on-select="false"
+        :searchable="true"
+        placeholder="Select members"
+        label="name"
+        track-by="id"
+        class="w-full"
+      />
+    </div>
+
+    <!-- Select Type -->
+    <div>
+      <label class="block font-medium text-sm text-gray-700">Select Contribution or Benefit</label>
+      <select
+        v-model="contributionData.type"
+        class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+      >
+        <option value="">Select Contribution or Benefits</option>
+        <option value="Contribution">Contribution</option>
+        <option value="Benefit">Benefit</option>
+      </select>
+    </div>
+
+        <div>
+      <label class="block font-medium text-sm text-gray-700">Type</label>
+      <select
+        v-model="contributionData.typeOfItem"
+        class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+      >
+        <option value="">Select Type</option>
+        <option value="Money">Money</option>
+        <option value="Item">Item</option>
+      </select>
+    </div>
+
+    <!-- Description -->
+    <div>
+      <label class="block font-medium text-sm text-gray-700">Description</label>
+      <textarea
+        v-model="contributionData.description"
+        class="w-full border rounded p-2 resize-none focus:outline-none focus:ring-2 focus:ring-green-400"
+        rows="3"
+        placeholder="Enter description"
+      ></textarea>
+    </div>
+
+    <!-- Date -->
+    <div>
+      <label class="block font-medium text-sm text-gray-700">Date</label>
+      <input
+        v-model="contributionData.date"
+        type="date"
+        class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+      />
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-3 pt-2">
+      <button type="button" @click="benefitDialog = false" class="text-red-500">Cancel</button>
+      <button type="button" @click="handleSaveBenefitAndContribution" class="bg-green-600 text-white px-4 py-2 rounded">
+        Save
+      </button>
+    </div>
+  </form>
+</GDialog>
+
    
-  
+    <!-- create contributions and benefits dialog -->
+  <GDialog v-model="dialogState" max-width="500">
+      <div class="flex items-start justify-between p-4 border-b bg-[#2f855a] rounded-t dark:border-gray-600">
+        <h3 class="H600 N900 text-white">
+          Create Meeting
+        </h3>
+        <button type="button" @click="dialogState=false"
+          class="inline-flex items-center ml-auto text-sm text-gray-400 bg-transparent rounded-lg hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white">
+          <img src="../assets/cancel.svg" alt="close-circle-icon" />
+        </button>
+      </div>
+
+      <form>   
+        <div class="px-4 mt-5">
+          <div>
+            <div class="flex justify-between">
+              <label for="position" class="block mb-2 my-1 pt-0.5 P250 N800 dark:text-grey-300">Select name</label>
+              <span class="requiredSpan text-[#DD5928] text-xs px-1.5 py-1.5mb-1.5 my-2 rounded-lg dark:text-grey-900">Required</span>
+            </div>
+<multiselect
+  v-model="meetingData.names"
+  :options="members"
+  :multiple="true"
+  :close-on-select="false"
+  :searchable="true"
+  placeholder="Select members"
+  label="name"
+  track-by="id"
+  class="w-full"
+/>
+
+          </div> 
+        </div>
+         <div class="px-4 mt-5">
+          <div>
+            <div class="flex justify-between">
+              <label for="position" class="block mb-2 my-1 pt-0.5 P250 N800 dark:text-grey-300">Select Meeting Type</label>
+              <span class="requiredSpan text-[#DD5928] text-xs px-1.5 py-1.5mb-1.5 my-2 rounded-lg dark:text-grey-900">Required</span>
+            </div>
+                    <select 
+  id="position" v-model="meetingData.meeting_type"
+
+  class="w-full bg-gray-50 border border-[#d8dae5] hover:border-[#1de383] text-gray-900 rounded-lg focus:outline-[#2f855a] focus:ring-[#1de383] focus:ring peer block dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#F2BEAB] dark:focus:border[#d8dae5] p-2"
+>
+  <option  value="">Select Meeting Type</option>
+  <option 
+    v-for="position in ['Executive Meeting', 'Ward Meeting', 'Polling Station']"
+    :key="position"
+    :value="position"
+  >
+    {{ position}}
+  </option>
+</select>
+
+
+          </div> 
+        </div>
+        <div class="px-4 mt-5">
+          <InputField type="text" id="text" label="Topic" :requireTag="true" placeholder="Write Topic"
+            :maxlength="50" :showlength="false" v-model="meetingData.topic" />
+        </div><div class="px-4 mt-5">
+          <InputField type="text" id="topic" label="Location" :requireTag="true" placeholder="Location"
+            :maxlength="50" :showlength="false" v-model="meetingData.location" />
+        </div>
+        <div class="px-4 mt-5">
+          <InputField type="date" id="date" label="Date" :requireTag="true" placeholder="Select Date"
+            :maxlength="50" :showlength="false" v-model="meetingData.date" />
+        </div>
+      
+
+
+        <div class="flex justify-end w-11/12 ml-5 my-5">
+          <button  id="cancelButton" class="text-[#DD5928] SPC-MR-200 mr-4" @click="dialogState = false">
+            Cancel
+          </button>
+          <button data-cy="updateSkills" id="updateButton" v-if="editState" @click.prevent="" type="button"
+            class="text-white btn-shadow P200 bg-[#2f855a] hover:bg-[#58b787] rounded-lg px-5 py-2 focus:outline-none focus:ring-2 focus:ring-[#EB9C7F] disabled:opacity-25 disabled:cursor-not-allowed flex"
+            >
+            <div v-if="loading" role="status">
+              <img src="../assets/loaderImage.svg" alt="loaderimg"/>
+              <span class="sr-only">Loading...</span>
+              &nbsp;
+            </div>
+            Update
+          </button>
+          <button v-else id="saveButton"  type="button" @click="handleSaveMeeting"
+            class="ml-4 text-white btn-shadow P200 bg-[#2f855a] hover:bg-[#58b787] rounded-lg px-5 py-2 focus:outline-none focus:ring-2 focus:ring-[#1de383] disabled:opacity-25 disabled:cursor-not-allowed flex"
+            >  
+            <div v-if="loading" role="status">
+              <svg viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"
+                class="inline w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-[#DD5928]">
+                <path
+                  d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                  fill="currentColor" />
+                <path
+                  d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                  fill="currentFill" />
+              </svg>
+              <span class="sr-only">Loading...</span>
+              &nbsp;
+            </div>
+            Save
+          </button>
+        </div>
+      </form>
+    </GDialog>   
 
    <div >
         <GDialog max-width="500" v-model="deleteState" class="relative p-4 w-full max-w-md h-full md:h-auto">
@@ -200,12 +401,11 @@
         </GDialog>
         </div>
 
-
 </template>
 
 <script setup>
 import InputField from '../components/InputField.vue';
-import { ref, onMounted} from 'vue';
+import { ref, onMounted, computed} from 'vue';
 import DeleteDialog from "../components/DeleteDialog.vue";
 import Multiselect from 'vue-multiselect'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
@@ -214,8 +414,30 @@ import 'vue-multiselect/dist/vue-multiselect.min.css'
 const editState = ref(false);
 const dialogState = ref(false);
 const deleteState = ref(false);
-const members = ref([]) 
+const members = ref([]) ;
 
+// const allNames =ref([]);
+// const person =ref({  id: null,
+//   full_name: '',});
+
+
+
+// const addName = () => {
+//   if (person.value.full_name.trim()) {
+//     allNames.value.push({ ...person.value });
+//     person.value.full_name = '';
+//   }
+// };
+
+// const deleteName = (index) => {
+//   allNames.value.splice(index, 1);
+// };
+
+// const filteredNames = computed(() => {
+//   return allNames.value.filter((item) =>
+//     item.full_name.toLowerCase().includes(searchItem.value.toLowerCase())
+//   );
+// })
 onMounted(() => {
   const savedMembers = localStorage.getItem("leadersData")
   if(savedMembers) {
@@ -234,6 +456,7 @@ const meetingData = ref({
 });
 
 
+
 const handleSaveMeeting = () => {
   const storedMembers = JSON.parse(localStorage.getItem("leadersData")) || [];
 
@@ -245,7 +468,7 @@ const handleSaveMeeting = () => {
         ...member,
         meetings: [
           ...existingMeetings,
-          {
+             {
             topic: meetingData.value.topic,
             location: meetingData.value.location,
             date: meetingData.value.date,
@@ -261,6 +484,46 @@ const handleSaveMeeting = () => {
   dialogState.value = false;
 };
 
+const benefitDialog = ref(false);
+
+const contributionData = ref({
+  names: [],
+  type: '',
+  description: '',
+  date: '',
+  typeOfItem: '',
+});
+
+const openBenefitDialog = () => {
+  benefitDialog.value = true;
+};
+
+const handleSaveBenefitAndContribution = () => {
+  const storedLeaders = JSON.parse(localStorage.getItem("leadersData")) || [];
+
+  const updatedLeaders = storedLeaders.map((member) => {
+    const isSelected = contributionData.value.names.some(selected => selected.id === member.id);
+    if (isSelected) {
+      const existing = member.benefit_contribution || [];
+      return {
+        ...member,
+        benefit_contribution: [
+          ...existing,
+          {
+            type: contributionData.value.type,
+            description: contributionData.value.description,
+            date: contributionData.value.date,
+            typeOfItem: contributionData.value.typeOfItem,
+          }
+        ]
+      };
+    }
+    return member;
+  });
+
+  localStorage.setItem("leadersData", JSON.stringify(updatedLeaders));
+  benefitDialog.value = false;
+};
 
 
 
